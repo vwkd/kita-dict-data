@@ -1,1 +1,0 @@
-{"inputConfig":{"gcsSource":{"uri":"gs://kita-dict/in/part1.pdf"},"mimeType":"application/pdf"},"responses":[{"context":{"uri":"gs://kita-dict/in/part1.pdf","pageNumber":4}}]}
