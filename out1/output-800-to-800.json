@@ -1,0 +1,1 @@
+{"inputConfig":{"gcsSource":{"uri":"gs://kita-dict/in/part1.pdf"},"mimeType":"application/pdf"},"responses":[{"error":{"code":13,"message":"Error in extracting this page."},"context":{"uri":"gs://kita-dict/in/part1.pdf","pageNumber":800}}]}
