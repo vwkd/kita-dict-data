@@ -17,8 +17,11 @@
 # - vertical bar
 # - bold markdown formatting
 
+# replaces:
+# - superscript numbers with numbers (because `LC_ALL=C sort` puts superscript numbers in wrong order)
+
 head -n $1 src/dict.txt \
 | gsed -z -e "s/\*\*[^\*]*\n  /\n  /g" \
 | grep -v -e "^##" -e "^$" -e "^  " \
-| sed -e "s/ .*$//g" -e "s/-//g" -e "s/(//g" -e "s/)//g" -e "s/|//g" -e "s/\*\*//g" \
+| sed -e "s/ .*$//g" -e "s/-//g" -e "s/(//g" -e "s/)//g" -e "s/|//g" -e "s/\*\*//g" -e "s/¹/1/g" -e "s/²/2/g" -e "s/³/3/g" -e "s/⁴/4/g" -e "s/⁵/5/g" -e "s/⁶/6/g" -e "s/⁷/7/g" -e "s/⁸/8/g" -e "s/⁹/9/g" \
 | LC_ALL=C sort -c
