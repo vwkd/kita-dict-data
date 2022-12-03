@@ -8,6 +8,7 @@
 # - header lines starting with two hashes
 # - empty lines
 # - verb lines starting with two spaces
+# - first line on page if continued from previous page
 
 # removes:
 # - infinitive suffix on verb root (needs gnu-sed because of -z option)
@@ -22,6 +23,6 @@
 
 head -n $1 src/dict.txt \
 | gsed -z -e "s/\*\*[^\*]*\n  /\n  /g" \
-| grep -v -e "^##" -e "^$" -e "^  " \
+| grep -v -e "^##" -e "^$" -e "^  " -e "^♦︎" \
 | sed -e "s/ .*$//g" -e "s/-//g" -e "s/(//g" -e "s/)//g" -e "s/|//g" -e "s/\*\*//g" -e "s/¹/1/g" -e "s/²/2/g" -e "s/³/3/g" -e "s/⁴/4/g" -e "s/⁵/5/g" -e "s/⁶/6/g" -e "s/⁷/7/g" -e "s/⁸/8/g" -e "s/⁹/9/g" \
 | LC_ALL=C sort -c
