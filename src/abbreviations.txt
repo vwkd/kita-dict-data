@@ -119,6 +119,7 @@ m. Vn.       männlicher Vorname
 *n*          Neutrum
 neg.         negativ
 ng.          nordgeorgisch
+*n/pl*       Neutrum Pluralis
 NG           Nordgeorgien
 NV           Neutrale Version
 (nz.)        neuzeitlich
