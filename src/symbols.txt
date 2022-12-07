@@ -1,0 +1,11 @@
+|          trennt beim ersten Titelkopf eines Gruppenartikels den Teil ab, der allen anderen Titelköpfen dieses Artikels gemeinsam ist
+~          Wiederholungszeichen für den ganzen Titelkopf oder den vor dem senkrechten Strich (|) stehenden Teil davon
+/          verbindet sinnverwandte Wörter, die sich gemeinsam auf ein oder mehrere Wörter beziehen
+||         Parallelform
+(|| ...)   weniger gebräuchliche Parallelform
+†          Archaismus, veralteter Ausdruck
+[...]      wenig gebräuchliche Verbform
+-          Form fehlt
+>          verwandelt sich in
+<          entstanden aus
+L. ... §§  Hinweise auf Lektionen im 1. Band der "Einführung in die georgische Sprache" (Theoretischer Teil)
