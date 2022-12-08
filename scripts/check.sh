@@ -1,8 +1,19 @@
 #!/bin/zsh
 
+# checks file until line number provided by first argument
+echo "Running checks until line $1..."
+
+# TODO: include vulgar fractions
+echo "Checking illegal characters..."
+head -n $1 src/dict.txt \
+| grep -n -o -E "[^][♦︎0-9¹²³⁴⁵⁶⁷⁸⁹½⅝ \(\)\|\.,:;~?!\/#\"'\*§=†Ωδέéàêëაბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰa-zäöüßA-ZÄÖÜẞ-]"
+
+echo "Checking missing superscript number..."
+head -n $1 src/dict.txt \
+| grep -n -E "^\s\s((IV[^¹²³⁴])|(P[^¹²³])|(RM[^¹²³⁴])|(RP[^¹²³⁴⁵⁶⁷])|(T[^¹²³⁴⁵])|(ZP[^¹²³]))"
+
 # checks if entries are sorted alphabetically
 # errors on first unsorted entry
-# line number limit provided by first argument
 
 # filters out:
 # - header lines starting with two hashes
@@ -22,6 +33,7 @@
 # replaces:
 # - superscript numbers with numbers (because `LC_ALL=C sort` puts superscript numbers in wrong order)
 
+echo "Checking incorrect sort..."
 head -n $1 src/dict.txt \
 | gsed -z -E "s/([^ ]*\*)([^\n]*)(\n  )/\1\3/g" \
 | grep -v -e "^##" -e "^$" -e "^  " -e "^♦︎" \
