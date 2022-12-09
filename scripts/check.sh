@@ -20,6 +20,12 @@ head -n $1 src/dict.txt \
 # head -n $1 src/dict.txt \
 # | ggrep -n -P "(?<!(^ )) aor"
 
+# slash followed by whitespace except if another slash with whitespace before, e.g. ` /s. unten/ `
+# second inverse to work around non-fixed length negative lookbehind limitation
+head -n $1 src/dict.txt \
+| grep -n -E "[^ ]\/ " \
+| grep -v -E " \/[\.!? აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰabcdefghijklmnopqrstuvwxyzäöüßABCD EFGHIJKLMNOPQRSTUVWXYZÄÖÜẞ]*\/ "
+
 # checks if entries are sorted alphabetically
 # errors on first unsorted entry
 
