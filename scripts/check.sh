@@ -12,6 +12,14 @@ echo "Checking missing superscript number..."
 head -n $1 src/dict.txt \
 | grep -n -E "^\s\s((IV[^¹²³⁴])|(P[^¹²³])|(RM[^¹²³⁴])|(RP[^¹²³⁴⁵⁶⁷])|(T[^¹²³⁴⁵])|(ZP[^¹²³]))"
 
+echo "Checking merged lines..."
+# `Inf.` or `3. Inf.` in middle of line
+head -n $1 src/dict.txt \
+| ggrep -n -P "(?<!(^ )|(^  \d\.)) Inf\."
+# `aor` in middle of line
+# head -n $1 src/dict.txt \
+# | ggrep -n -P "(?<!(^ )) aor"
+
 # checks if entries are sorted alphabetically
 # errors on first unsorted entry
 
