@@ -10,7 +10,7 @@ head -n $1 src/dict.txt \
 
 echo "Checking missing superscript number..."
 head -n $1 src/dict.txt \
-| grep -n -E "^\s\s((IV[^¹²³⁴])|(P[^¹²³])|(RM[^¹²³⁴])|(RP[^¹²³⁴⁵⁶⁷])|(T[^¹²³⁴⁵])|(ZP[^¹²³]))"
+| ggrep -n -P "(IV[^¹²³⁴])|(P[^¹²³\.a-zäöüR]])|(RM[^¹²³⁴])|(RP[^¹²³⁴⁵⁶⁷])|((?<!K)T[^¹²³⁴⁵\.a-zaäöü])|(ZP[^¹²³])"
 
 echo "Checking merged lines..."
 # `Inf.` or `3. Inf.` in middle of line
