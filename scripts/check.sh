@@ -32,6 +32,10 @@ head -n $1 src/dict.txt \
 | grep -n -E "[^ ]\/ " \
 | grep -v -E " \/[\.!? აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰabcdefghijklmnopqrstuvwxyzäöüßABCD EFGHIJKLMNOPQRSTUVWXYZÄÖÜẞ]*\/ "
 
+echo "Checking trailing space..."
+head -n $1 src/dict.txt \
+| grep -E " $"
+
 # checks if entries are sorted alphabetically
 # errors on first unsorted entry
 # defines: first -, then letter, then numbers
