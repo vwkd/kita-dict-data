@@ -14,6 +14,7 @@ ag.          altgeorgisch
 *attr*       attributiv, d.h. adjektivisch gebraucht bzw. dekliniert
 b.           bringen
 Bed.         Bedeutung
+(biol.)      biologisch, Biologie
 (bot.)       botanisch, Botanik
 *cd*         Konditional
 (chem.)      chemisch, Chemie
@@ -36,12 +37,14 @@ e.           ein
 ea.          einander
 e-e          eine
 ehm.         ehemals, ehemalig
+(elektr.)    elektrisch, Elektrik
 e-m          einem
 e-n          einen
 *enkl*       enklitisch
 e-r          einer
 e-s          eines
 et.          etwas
+(ethn.)      ethnisch, Ethnie
 (euph.)      euphemistisch, beschönigend
 *f*          Femininum
 (fam.)       familiär
@@ -106,6 +109,7 @@ m-e          meine
 m-m          meinem
 m-n          meinen
 (moch.)      Dialekt der Mochewe, mochewisch
+(moral.)     moralisch, Moral
 *m/pl*       Maskulinum Pluralis
 m-r          meiner
 m-s          meines
@@ -141,6 +145,7 @@ P³           Passiv mit ები
 *(perf.)*    perfektiv
 *pf*         Perfekt
 *p.f.*       Partizipium Futuri Passivi
+(photogr.)   photographisch, Photographie
 (phys.)      physikalisch, Physik
 Pkt.         Punkt
 *pl*         Plural
@@ -201,6 +206,7 @@ u.           und
 (u-imer.)    Dialekt von Unter-Imerethi, unterimerethisch
 (umg.)       umgangssprachlich
 (unk.)       unkorrekte Form
+(u-ratsch.)  Dialekt von Unter-Ratscha, unterratschisch
 u. zw.       und zwar
 *V*          Vokativ
 v.           von, vom
