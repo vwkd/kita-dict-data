@@ -56,6 +56,7 @@ head -n $1 src/dict.txt \
 # - parentheses
 # - vertical bar
 # - bold markdown formatting
+# - dot
 
 # replaces:
 # - superscript numbers with numbers (because `LC_ALL=C sort` puts superscript numbers in wrong order)
@@ -64,5 +65,5 @@ echo "Checking incorrect sort..."
 head -n $1 src/dict.txt \
 | gsed -z -E "s/([^ ]*\*[¹²³⁴⁵⁶⁷⁸⁹]?)([^\n]*)(\n  )/\1\3/g" \
 | grep -v -e "^##" -e "^$" -e "^  " -e "^♦︎" \
-| sed -E -e "s/(,)? .*$//g" -e "s/^-(.+)/\1@/g" -e "s/(.)-(.)/\1\2/g" -e "s/\(//g" -e "s/\)//g" -e "s/\|//g" -e "s/\*\*//g" -e "s/¹/1/g" -e "s/²/2/g" -e "s/³/3/g" -e "s/⁴/4/g" -e "s/⁵/5/g" -e "s/⁶/6/g" -e "s/⁷/7/g" -e "s/⁸/8/g" -e "s/⁹/9/g" \
+| sed -E -e "s/(,)? .*$//g" -e "s/^-(.+)/\1@/g" -e "s/(.)-(.)/\1\2/g" -e "s/\(//g" -e "s/\)//g" -e "s/\|//g" -e "s/\*\*//g" -e "s/\.//g" -e "s/¹/1/g" -e "s/²/2/g" -e "s/³/3/g" -e "s/⁴/4/g" -e "s/⁵/5/g" -e "s/⁶/6/g" -e "s/⁷/7/g" -e "s/⁸/8/g" -e "s/⁹/9/g" \
 | LC_ALL=C sort -c
