@@ -17,6 +17,12 @@ head -n $1 src/dict.txt \
 | ggrep -n -P "(IV[^¹²³⁴])|(P[^¹²³\.a-zäöüR]])|(RM[^¹²³⁴])|(RP[^¹²³⁴⁵⁶⁷])|((?<!K)T[^¹²³⁴⁵\.a-zaäöü])|(ZP[^¹²³])"
 
 echo "Checking merged lines..."
+# missing space after comma except if digit or newline
+head -n $1 src/dict.txt \
+| ggrep -nP ",(?![ \d]|$)"
+# missing space after semicolon except if newline
+head -n $1 src/dict.txt \
+| ggrep -nP ";(?! |$)"
 # `Inf.` or `3. Inf.` in middle of line
 head -n $1 src/dict.txt \
 | ggrep -n -P "(?<!(^ )|(^  \d\.)) Inf\."
