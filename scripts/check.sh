@@ -3,10 +3,9 @@
 # checks file until line number provided by first argument
 echo "Running checks until line $1..."
 
-# TODO: include vulgar fractions
 echo "Checking illegal characters..."
 head -n $1 src/dict.txt \
-| grep -n -o -E "[^][♦︎0-9¹²³⁴⁵⁶⁷⁸⁹½⅝ \(\)\|\.,:;~?!\/#\"'\*§=†Ωδέéàêëაბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰa-zäöüßA-ZÄÖÜẞ-]"
+| grep -n -o -E "[^][♦︎0-9¹²³⁴⁵⁶⁷⁸⁹½⅝⁄₁₂₃₄₅₆₇₈₉ \(\)\|\.,:;~?!\/#\"'\*§=†Ωδέéàêëაბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰa-zäöüßA-ZÄÖÜẞ-]"
 
 echo "Checking misrecognized characters..."
 head -n $1 src/dict.txt \
