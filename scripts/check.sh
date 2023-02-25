@@ -41,6 +41,11 @@ head -n $1 src/dict.txt \
 | grep -n -E "[^ ]\/ " \
 | grep -v -E " \/[\.!? აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰabcdefghijklmnopqrstuvwxyzäöüßABCD EFGHIJKLMNOPQRSTUVWXYZÄÖÜẞ]*\/ "
 
+# except at start of line
+echo "Checking multiple space..."
+head -n $1 src/dict.txt \
+| grep -E "[^\n]\s{2,}"
+
 echo "Checking trailing space..."
 head -n $1 src/dict.txt \
 | grep -E " $"
