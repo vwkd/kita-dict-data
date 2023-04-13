@@ -12,7 +12,7 @@
 # - line ends in `-` and preceeded by hyphen, comma, space and characters, and followed by characters, not hyphen (currently space / comma / semicolon / line-end), e.g. `Waschbär-, Schuppen-\npelz`, but not `Zusammen-, Gemein-\nschafts-leben`
 # - line ends in `/`
 # - line ends in `-)` preceeded by non-space
-# - line ends in `)` preceeded by lowercase and next line starts with uppercase, e.g. `(Kegel)\nBahn`
+# - line ends in `)` preceeded by `(`, uppercase, and lowercase and next line starts with uppercase, e.g. `(Kegel)\nBahn`, but not `(in Zusammensetzungen) Schüler`
 # merge with whitespace if
 # - line ends in `-` and next line starts with `u.`, e.g. `Ochsen-\nu. Büffelgespann`
 # - line ends in `-` and next line starts with `od.`
@@ -29,7 +29,7 @@ gsed -z -E \
   -e "s/([a-zäöüß]-, [A-ZÄÖÜẞ]?[a-zäöüß]+-)\n([a-zäöüß]+([ ,;\n]))/\1\2/g" \
   -e "s/(\/)\n(.)/\1\2/g" \
   -e "s/([^ ]-\))\n(.)/\1\2/g" \
-  -e "s/([a-zäöüß]\))\n([A-ZÄÖÜẞ])/\1\2/g" \
+  -e "s/(\([A-ZÄÖÜẞ][a-zäöüß]+\))\n([A-ZÄÖÜẞ])/\1\2/g" \
   -e "s/(-)\n(u\.)/\1 \2/g" \
   -e "s/(-)\n(od\.)/\1 \2/g" \
   -e "s/-\n(.)/\1/g" \
