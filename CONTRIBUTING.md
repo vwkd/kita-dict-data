@@ -10,6 +10,12 @@
 ln -s "$PWD/scripts/merge_lines.sh" ~/.local/bin/ml
 ```
 
+- add `fix_page.sh` as shell command `fp`
+
+```sh
+ln -s "$PWD/scripts/fix_page.sh" ~/.local/bin/fp
+```
+
 
 
 ## Workflow
