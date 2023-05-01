@@ -11,6 +11,10 @@ echo "Checking misrecognized characters..."
 head -n $1 src/dict.txt \
 | grep -n -E -e "~[a-zäöüßA-ZÄÖÜ]" -e "[a-zäöüßA-ZÄÖÜ]~"
 
+echo "Checking mixed characters..."
+head -n $1 src/dict.txt \
+| grep -n -E -e "[a-zäöüßA-ZÄÖÜ][აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ]" -e "[აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ][a-zäöüßA-ZÄÖÜ]"
+
 echo "Checking missing superscript number..."
 head -n $1 src/dict.txt \
 | ggrep -n -P "(IV[^¹²³⁴])|(P[^¹²³\.a-zäöüR]])|(RM[^¹²³⁴])|(RP[^¹²³⁴⁵⁶⁷])|((?<!K)T[^¹²³⁴⁵\.a-zaäöü])|(ZP[^¹²³])"
