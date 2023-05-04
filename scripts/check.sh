@@ -22,7 +22,7 @@ head -n $1 src/dict.txt \
 echo "Checking merged lines..."
 # missing space after comma except if digit or newline
 head -n $1 src/dict.txt \
-| ggrep -nP ",(?![ \d]|$)"
+| ggrep -nP ",(?! |\d|$)"
 # missing space after semicolon except if newline
 head -n $1 src/dict.txt \
 | ggrep -nP ";(?! |$)"
