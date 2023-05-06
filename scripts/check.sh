@@ -17,7 +17,7 @@ head -n $1 src/dict.txt \
 
 echo "Checking missing superscript number..."
 head -n $1 src/dict.txt \
-| ggrep -n -P "(IV[^¹²³⁴])|(P[^¹²³\.a-zäöüR]])|(RM[^¹²³⁴])|(RP[^¹²³⁴⁵⁶⁷])|((?<!K)T[^¹²³⁴⁵\.a-zaäöü])|(ZP[^¹²³])"
+| ggrep -n -P "(IV[^¹²³⁴\.])|(P[^¹²³\.a-zäöüR]])|(RM[^¹²³⁴])|(RP[^¹²³⁴⁵⁶⁷])|((?<!K)T[^¹²³⁴⁵\.a-zaäöü])|(ZP[^¹²³])"
 
 echo "Checking merged lines..."
 # missing space after comma except if digit or newline
