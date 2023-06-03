@@ -19,6 +19,7 @@
 # merge without whitespace and delete trailing hyphen otherwise
 # merge with single whitespace otherwise
 # replace trailing whitespace with newline
+# beware: doesn't handle abbreviations, needs to fix manually, e.g. `pr.\ndem.` becomes `pr. dem.`
 
 gsed -z -E \
   -e "s/(~-)\n(.)/\1\2/g" \
