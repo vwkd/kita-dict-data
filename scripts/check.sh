@@ -5,7 +5,7 @@ echo "Running checks until line $1..."
 
 echo "Checking illegal characters..."
 head -n $1 src/dict.txt \
-| grep -n -o -E "[^][♦︎0-9¹²³⁴⁵⁶⁷⁸⁹½⅝⁄₁₂₃₄₅₆₇₈₉ \(\)\|\.,:;~?!\/#\"'\*§=†Ωδέéàêëაბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰa-zäöüßA-ZÄÖÜẞ-]"
+| grep -n -o -E "[^][♦︎0-9¹²³⁴⁵⁶⁷⁸⁹½⅛⅝⁄₁₂₃₄₅₆₇₈₉ \(\)\|\.,:;~?!\/#\"'\*§=†Ωδέéàêëაბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰa-zäöüßA-ZÄÖÜẞ-]"
 
 echo "Checking misrecognized characters..."
 head -n $1 src/dict.txt \
