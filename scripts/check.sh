@@ -9,11 +9,15 @@ head -n $1 src/dict.txt \
 
 echo "Checking misrecognized characters..."
 head -n $1 src/dict.txt \
-| grep -n -E -e "~[a-zäöüßA-ZÄÖÜ]" -e "[a-zäöüßA-ZÄÖÜ]~"
+| grep -n -E \
+  -e "~[a-zäöüßA-ZÄÖÜ]" \
+  -e "[a-zäöüßA-ZÄÖÜ]~"
 
 echo "Checking mixed characters..."
 head -n $1 src/dict.txt \
-| grep -n -E -e "[a-zäöüßA-ZÄÖÜ][აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ]" -e "[აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ][a-zäöüßA-ZÄÖÜ]"
+| grep -n -E \
+  -e "[a-zäöüßA-ZÄÖÜ][აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ]" \
+  -e "[აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ][a-zäöüßA-ZÄÖÜ]"
 
 echo "Checking missing superscript number..."
 head -n $1 src/dict.txt \
@@ -56,7 +60,7 @@ head -n $1 src/dict.txt \
 
 # checks if entries are sorted alphabetically
 # errors on first unsorted entry
-# defines: first -, then letter, then numbers
+# defines: first hyphen, then letters, then numbers
 
 # filters out:
 # - header lines starting with two hashes
@@ -82,6 +86,27 @@ head -n $1 src/dict.txt \
 echo "Checking incorrect sort..."
 head -n $1 src/dict.txt \
 | gsed -z -E "s/([^ ]*\*[¹²³⁴⁵⁶⁷⁸⁹]?)([^\n]*)(\n  )/\1\3/g" \
-| grep -v -e "^##" -e "^$" -e "^  " -e "^♦︎" \
-| sed -E -e "s/(,)? .*$//g" -e "s/^-(.+)/\1@/g" -e "s/(.)-(.)/\1\2/g" -e "s/\(//g" -e "s/\)//g" -e "s/\|//g" -e "s/\*\*//g" -e "s/\.//g" -e "s/¹/1/g" -e "s/²/2/g" -e "s/³/3/g" -e "s/⁴/4/g" -e "s/⁵/5/g" -e "s/⁶/6/g" -e "s/⁷/7/g" -e "s/⁸/8/g" -e "s/⁹/9/g" \
+| grep -v \
+  -e "^##" \
+  -e "^$" \
+  -e "^  " \
+  -e "^♦︎" \
+| sed -E \
+  -e "s/(,)? .*$//g" \
+  -e "s/^-(.+)/\1@/g" \
+  -e "s/(.)-(.)/\1\2/g" \
+  -e "s/\(//g" \
+  -e "s/\)//g" \
+  -e "s/\|//g" \
+  -e "s/\*\*//g" \
+  -e "s/\.//g" \
+  -e "s/¹/1/g" \
+  -e "s/²/2/g" \
+  -e "s/³/3/g" \
+  -e "s/⁴/4/g" \
+  -e "s/⁵/5/g" \
+  -e "s/⁶/6/g" \
+  -e "s/⁷/7/g" \
+  -e "s/⁸/8/g" \
+  -e "s/⁹/9/g" \
 | LC_ALL=C sort -c
