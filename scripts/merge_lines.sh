@@ -20,6 +20,8 @@ substitutions=(
   -e "s/([a-zäöüß]-, [A-ZÄÖÜẞ]?[a-zäöüß]+-)\n([a-zäöüß\(\)]+([ ,;\/\n]))/\1\2/g"
   # line ends in `/`
   -e "s/(\/)\n(.)/\1\2/g"
+  # next line starts with `/`
+  -e "s/\n(\/)/\1/g"
   # line ends in `-)` preceeded by non-space
   -e "s/([^ ]-\))\n(.)/\1\2/g"
   # line ends in `)` preceeded by `(`, uppercase, and lowercase and next line starts with uppercase, e.g. `(Kegel)\nBahn`, but not `(in Zusammensetzungen) Schüler`
