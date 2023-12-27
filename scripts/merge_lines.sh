@@ -26,6 +26,8 @@ substitutions=(
   -e "s/([^ ]-\))\n(.)/\1\2/g"
   # line ends in `)` preceeded by `(`, uppercase, and lowercase and next line starts with uppercase, e.g. `(Kegel)\nBahn`, but not `(in Zusammensetzungen) Schüler`
   -e "s/(\([A-ZÄÖÜẞ][a-zäöüß]+\))\n([A-ZÄÖÜẞ])/\1\2/g"
+  # line ends in `u-` or `o-`, and next line starts with `imer\.` or `ratsch\.`
+  -e "s/((u-)|(o-))\n((imer\.)|(ratsch\.))/\1\4/g"
 
   # merge with whitespace if
   # line ends in `-` and next line starts with `u.`, e.g. `Ochsen-\nu. Büffelgespann`
