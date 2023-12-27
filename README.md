@@ -4,6 +4,12 @@ A Georgian German dictionary
 
 
 
+## Format
+
+The dictionary uses an ad-hoc pseudo-markdown format intended to be as similar as possible to the source for ease of visual comparison. Pages are preserved to make locating and navigating for incremental work possible. The header `## X/Y` identifies book `X` and page `Y`. When a page break splits a line into two, the symbol `♦︎` at the start of the first line of a page indicates it should be concatenated to the end of the last line of the previous page, and the symbol `♠︎` at the end of the last line of the previous page indicates the preceeding hyphen should be deleted. Bold formatting is preserved since the verb roots can't be reconstructed, but cursive formatting isn't preserved since it's only used for unambiguous grammatical markers.
+
+
+
 ## Usage
 
 - show corrected print errors
