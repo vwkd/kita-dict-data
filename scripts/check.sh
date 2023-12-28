@@ -40,7 +40,7 @@ head -n $1 src/dict.txt \
 # second inverse to work around non-fixed length negative lookbehind limitation
 # needs to include line numbers from first
 head -n $1 src/dict.txt \
-| ggrep -nP "[^ ]- (?!(u\. )|(od\. )|(und )|(oder )|(bzw\. )|(bis ))" \
+| ggrep -nP "[^ ]- (?!(u\. )|(od\. )|(und )|(oder )|(bzw\. )|(bis )|(usw\.\)))" \
 | grep -vE -e "^(\d+:)[აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ]+- "
 
 # slash followed by whitespace except if another slash with whitespace before, e.g. ` /s. unten/ `
