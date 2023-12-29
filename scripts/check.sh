@@ -19,6 +19,7 @@ head -n $1 src/dict.txt \
   -e "[a-zäöüßA-ZÄÖÜ][აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ]" \
   -e "[აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ][a-zäöüßA-ZÄÖÜ]"
 
+# note: regex alternations to work around single pattern limitation of `-P` option
 echo "Checking missing superscript number..."
 head -n $1 src/dict.txt \
 | ggrep -n -P "(IV[^¹²³⁴\.])|(P[^¹²³\.a-zäöüR]])|(RM[^¹²³⁴])|(RP[^¹²³⁴⁵⁶⁷])|((?<!K)T[^¹²³⁴⁵\.a-zaäöü])|(ZP[^¹²³])"
@@ -33,18 +34,15 @@ head -n $1 src/dict.txt \
 # `Inf.` or `3. Inf.` in middle of line
 head -n $1 src/dict.txt \
 | ggrep -n -P "(?<!(^ )|(^  \d\.)) Inf\."
-# `aor` in middle of line
-# head -n $1 src/dict.txt \
-# | ggrep -n -P "(?<!(^ )) aor"
 # hyphen followed by space except if first word in line
-# second inverse to work around non-fixed length negative lookbehind limitation
-# needs to include line numbers from first
+# note: second inverse to work around non-fixed length negative lookbehind limitation
+# note: needs to include line numbers from first
 head -n $1 src/dict.txt \
 | ggrep -nP "[^ ]- (?!(u\. )|(od\. )|(und )|(oder )|(bzw\. )|(bis )|(usw\.\)))" \
 | grep -vE -e "^(\d+:)[აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ]+- "
 
 # slash followed by whitespace except if another slash with whitespace before, e.g. ` /s. unten/ `
-# second inverse to work around non-fixed length negative lookbehind limitation
+# note: second inverse to work around non-fixed length negative lookbehind limitation
 head -n $1 src/dict.txt \
 | grep -n -E "[^ ]\/ " \
 | grep -v -E " \/[\.!? აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰabcdefghijklmnopqrstuvwxyzäöüßABCD EFGHIJKLMNOPQRSTUVWXYZÄÖÜẞ]*\/ "
