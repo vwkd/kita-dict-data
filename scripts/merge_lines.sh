@@ -32,8 +32,10 @@ substitutions=(
   # line ends in `-` and preceeded by hyphen, comma, space and characters, and followed by characters, not hyphen (currently space / comma / semicolon / slash / line-end), e.g. `Waschbär-, Schuppen-\npelz`, `an-, hin-\nzulehnen(d)`, but not `Zusammen-, Gemein-\nschafts-leben`
   -e "s/([a-zäöüß]-, [A-ZÄÖÜẞ]?[a-zäöüß]+-)\n([a-zäöüß\(\)]+([ ,;\/\n]))/\1\2/g"
   # line ends in `/`
+  # todo: not always correct, e.g. when uses slashes to enclose explanation
   -e "s/(\/)\n(.)/\1\2/g"
   # next line starts with `/`
+  # todo: not always correct, e.g. when uses slashes to enclose explanation
   -e "s/\n(\/)/\1/g"
   # line ends in `-)` preceeded by non-space
   -e "s/([^ ]-\))\n(.)/\1\2/g"
