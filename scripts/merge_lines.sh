@@ -1,5 +1,13 @@
 #!/bin/zsh
 
+input=$(cat)
+
+# validate lines have no trailing whitespace
+if echo "$input" | grep -q '[[:space:]]$' ; then
+  echo "Lines have trailing whitespace" >&2
+  exit 1
+fi
+
 # merges lines except trailing newline
 # beware: always check that correctly transforms it!
 # beware: doesn't handle abbreviations, needs to fix manually, e.g. `pr.\ndem.` becomes `pr. dem.`
@@ -45,4 +53,4 @@ substitutions=(
   -e "s/\s+$/\n/"
 )
 
-gsed -z -E "${substitutions[@]}"
+echo "$input" | gsed -z -E "${substitutions[@]}"
