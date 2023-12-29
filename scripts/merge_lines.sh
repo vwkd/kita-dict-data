@@ -8,6 +8,12 @@ if echo "$input" | grep -q '[[:space:]]$' ; then
   exit 1
 fi
 
+# validate lines have no leading whitespace, except first
+if echo "$input" | tail -n +2 | grep -q '^[[:space:]]' ; then
+  echo "Lines have leading whitespace" >&2
+  exit 1
+fi
+
 # merges lines except trailing newline
 # beware: always check that correctly transforms it!
 # beware: doesn't handle abbreviations, needs to fix manually, e.g. `pr.\ndem.` becomes `pr. dem.`
