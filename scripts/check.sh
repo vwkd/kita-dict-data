@@ -14,10 +14,16 @@ head -n $1 src/dict.txt \
   -e "[a-zäöüßA-ZÄÖÜ]~"
 
 echo "Checking mixed characters..."
+# no separation
 head -n $1 src/dict.txt \
 | grep -n -E \
   -e "[a-zäöüßA-ZÄÖÜ][აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ]" \
   -e "[აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ][a-zäöüßA-ZÄÖÜ]"
+# separated by space
+head -n $1 src/dict.txt \
+| ggrep -n -P "[a-zäöüßA-ZÄÖÜ]-[აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ]"
+head -n $1 src/dict.txt \
+| ggrep -n -P "[აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ]-(?!Spiel|weise|Massen|Brot|Instruments|Sänger|Partei|Tänzer)[a-zäöüßA-ZÄÖÜ]"
 
 # note: regex alternations to work around single pattern limitation of `-P` option
 echo "Checking missing superscript number..."
