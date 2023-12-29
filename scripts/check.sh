@@ -46,7 +46,9 @@ head -n $1 src/dict.txt \
 head -n $1 src/dict.txt \
 | ggrep -nP "[^ ]- (?!(u\. )|(od\. )|(und )|(oder )|(bzw\. )|(bis )|(usw\.\)))" \
 | grep -vE -e "^(\d+:)[აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ]+- "
-
+# hyphen followed by slash
+head -n $1 src/dict.txt \
+| grep -n -E ":\/"
 # slash followed by whitespace except if another slash with whitespace before, e.g. ` /s. unten/ `
 # note: second inverse to work around non-fixed length negative lookbehind limitation
 head -n $1 src/dict.txt \
