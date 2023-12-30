@@ -1,0 +1,299 @@
+#!/usr/bin/env -S deno run --ext=ts --allow-read
+
+const NEWLINE = "\n";
+const DICT_PATH = "src/dict.txt";
+
+/**
+ * Checks file until line number provided by first argument.
+ */
+if (import.meta.main) {
+  let lineNumberArg = Deno.args[0];
+
+  if (!lineNumberArg) {
+    throw new Error("No line number argument provided.");
+  }
+
+  // note: stops parsing after first invalid character
+  const lineNumber = parseInt(lineNumberArg);
+
+  if (Number.isNaN(lineNumber)) {
+    throw new Error("Line number argument must be an integer.");
+  }
+
+  if (lineNumber < 0) {
+    throw new Error("Line number argument must be a non-negative integer.");
+  }
+
+  console.info(`Checking until line ${lineNumber}...`);
+
+  const text = await Deno.readTextFile(DICT_PATH);
+  const lines = text
+    .split(NEWLINE)
+    .slice(0, lineNumber);
+
+  illegalCharacters(lines);
+  misrecognizedCharacters(lines);
+  mixedCharacters(lines);
+  missingSuperscriptNumber(lines);
+  mergedLines(lines);
+  whitespace(lines);
+
+  incorrectSort(lines);
+}
+
+/**
+ * Checks illegal characters.
+ * @param lines array of lines
+ */
+function illegalCharacters(lines: string[]): void {
+  console.info("Illegal characters");
+
+  const re_illegal_chars =
+    /[^\]\[♦︎0-9¹²³⁴⁵⁶⁷⁸⁹½⅛⅝⁄₁₂₃₄₅₆₇₈₉ ()|.,:;~?!\/#"'*§=†Ωδέéàêëა-ჰa-zäöüßA-ZÄÖÜẞ-]/g;
+  printMatches(lines, re_illegal_chars);
+}
+
+/**
+ * Checks misrecognized characters.
+ * @param lines array of lines
+ */
+function misrecognizedCharacters(lines: string[]): void {
+  console.info("Misrecognized characters");
+
+  const re_misrecognized_chars = /~[a-zäöüßA-ZÄÖÜ]/g;
+  printMatches(lines, re_misrecognized_chars);
+
+  const re_misrecognized_chars2 = /[a-zäöüßA-ZÄÖÜ]~/g;
+  printMatches(lines, re_misrecognized_chars2);
+}
+
+/**
+ * Checks mixed characters.
+ * @param lines array of lines
+ */
+function mixedCharacters(lines: string[]): void {
+  console.info("Mixed characters");
+
+  // no separation
+  const re_mixed_chars = /[a-zäöüßA-ZÄÖÜ][ა-ჰ]/g;
+  printMatches(lines, re_mixed_chars);
+
+  const re_mixed_chars2 = /[ა-ჰ][a-zäöüßA-ZÄÖÜ]/g;
+  printMatches(lines, re_mixed_chars2);
+
+  // separated by space
+  const re_mixed_chars3 = /[a-zäöüßA-ZÄÖÜ]-[ა-ჰ]/g;
+  printMatches(lines, re_mixed_chars3);
+
+  const re_mixed_chars4 =
+    /[ა-ჰ]-(?!Spiel|weise|Massen|Brot|Instruments|Sänger|Partei|Tänzer)[a-zäöüßA-ZÄÖÜ]/g;
+  printMatches(lines, re_mixed_chars4);
+}
+
+/**
+ * Checks missing superscript numbers.
+ * @param lines array of lines
+ */
+function missingSuperscriptNumber(lines: string[]): void {
+  console.info("Missing superscript number");
+
+  const re_missing_superscript = /IV[^¹²³⁴\.]/g;
+  printMatches(lines, re_missing_superscript);
+
+  const re_missing_superscript2 = /(?<!R)P[^¹²³\.a-zäöüR]/g;
+  printMatches(lines, re_missing_superscript2);
+
+  const re_missing_superscript3 = /RM[^¹²³⁴]/g;
+  printMatches(lines, re_missing_superscript3);
+
+  const re_missing_superscript4 = /RP[^¹²³⁴⁵⁶⁷]/g;
+  printMatches(lines, re_missing_superscript4);
+
+  const re_missing_superscript5 = /(?<!K)T[^¹²³⁴⁵\.a-zäöü]/g;
+  printMatches(lines, re_missing_superscript5);
+
+  const re_missing_superscript6 = /ZP[^¹²³]/g;
+  printMatches(lines, re_missing_superscript6);
+}
+
+/**
+ * Checks merged lines.
+ * @param lines array of lines
+ */
+function mergedLines(lines: string[]): void {
+  console.info("Merged lines");
+
+  // missing space after comma except if digit or newline
+  const re_merged_lines = /,(?! |\d|$)/g;
+  printMatches(lines, re_merged_lines);
+
+  // missing space after semicolon except if newline
+  const re_merged_lines2 = /;(?! |$)/g;
+  printMatches(lines, re_merged_lines2);
+
+  // `Inf.` in middle of line
+  const re_merged_lines3 = /(?<!^ |  \d\.) Inf\./g;
+  printMatches(lines, re_merged_lines3);
+
+  // hyphen followed by space except if first word in line
+  const re_merged_lines4 =
+    /(?<= )\S+- (?!(u\. )|(od\. )|(und )|(oder )|(bzw\. )|(bis )|(usw\.\)))/g;
+  printMatches(lines, re_merged_lines4);
+
+  // hyphen followed by slash
+  const re_merged_lines5 = /:\//g;
+  printMatches(lines, re_merged_lines5);
+
+  // slash followed by whitespace except if another slash with whitespace before, e.g. ` /s. unten/ `
+  const re_merged_lines6 = /(?<! \/[^\/]+)\/ /g;
+  printMatches(lines, re_merged_lines6);
+}
+
+/**
+ * Checks whitespace.
+ * @param lines array of lines
+ */
+function whitespace(lines: string[]): void {
+  console.info("Whitespace");
+
+  // multiple spaces except if at start of line
+  const re_multiple_space = /(?<!^) {2,}/g;
+  printMatches(lines, re_multiple_space);
+
+  // trailing space
+  const re_trailing_space = / $/g;
+  printMatches(lines, re_trailing_space);
+}
+
+/**
+ * Checks if entries are sorted alphabetically.
+ * Errors on first unsorted entry.
+ *
+ * defines: first hyphen, then letters, then numbers
+ *
+ * filters out:
+ * - header lines starting with two hashes
+ * - empty lines
+ * - verb lines starting with two spaces
+ * - first line on page if continued from previous page
+ *
+ * removes:
+ * - rest of line after last star if next line start with two spaces (infinitive suffix on verb root)
+ * - rest of line after first space
+ * - hyphen, except
+ *   - if at end keep
+ *   - if at start add placeholder `@` to sort last
+ * - parentheses
+ * - vertical bar
+ * - bold markdown formatting
+ * - dot
+ *
+ * replaces:
+ * - superscript numbers with numbers (because `sort` puts superscript numbers in wrong order)
+ * @param lines array of lines
+ */
+function incorrectSort(lines: string[]): void {
+  console.info("Incorrect sort");
+
+  const re_infinitive_suffix = /([^ ]*\*[¹²³⁴⁵⁶⁷⁸⁹]?)([^\n]*)(\n  )/g;
+  const sub_infinitive_suffix = "$1$3";
+
+  const re_header_line = /^##.*$/gm;
+  const re_empty_line = /^\n/gm;
+  const re_verb_line = /^  .*$/gm;
+  const re_continued_line = /^♦︎.*$/gm;
+  const sub_empty = "";
+
+  const re_rest = /(,)? .*$/gm;
+  const re_hyphen_start = /^-(.+)/gm;
+  const sub_hyphen_start = "$1@";
+
+  const re_hyphen = /(.)-(.)/g;
+  const sub_hyphen = "$1$2";
+
+  const re_parenthesis_left = /\(/g;
+  const re_parenthesis_right = /\)/g;
+  const re_vertical_bar = /\|/g;
+  const re_bold = /\*\*/g;
+  const re_dot = /\./g;
+  const re_superscript_1 = /¹/g;
+  const sub_superscript_1 = "1";
+  const re_superscript_2 = /²/g;
+  const sub_superscript_2 = "2";
+  const re_superscript_3 = /³/g;
+  const sub_superscript_3 = "3";
+  const re_superscript_4 = /⁴/g;
+  const sub_superscript_4 = "4";
+  const re_superscript_5 = /⁵/g;
+  const sub_superscript_5 = "5";
+  const re_superscript_6 = /⁶/g;
+  const sub_superscript_6 = "6";
+  const re_superscript_7 = /⁷/g;
+  const sub_superscript_7 = "7";
+  const re_superscript_8 = /⁸/g;
+  const sub_superscript_8 = "8";
+  const re_superscript_9 = /⁹/g;
+  const sub_superscript_9 = "9";
+
+  const textClean = lines
+    .join(NEWLINE)
+    .replaceAll(re_infinitive_suffix, sub_infinitive_suffix)
+    .replaceAll(re_header_line, sub_empty)
+    .replaceAll(re_verb_line, sub_empty)
+    .replaceAll(re_continued_line, sub_empty)
+    .replaceAll(re_empty_line, sub_empty)
+    // remove trailing newline if any since `re_empty_line` doesn't match it
+    .trimEnd()
+    .replaceAll(re_rest, sub_empty)
+    .replaceAll(re_hyphen_start, sub_hyphen_start)
+    .replaceAll(re_hyphen, sub_hyphen)
+    .replaceAll(re_parenthesis_left, sub_empty)
+    .replaceAll(re_parenthesis_right, sub_empty)
+    .replaceAll(re_vertical_bar, sub_empty)
+    .replaceAll(re_bold, sub_empty)
+    .replaceAll(re_dot, sub_empty)
+    .replaceAll(re_superscript_1, sub_superscript_1)
+    .replaceAll(re_superscript_2, sub_superscript_2)
+    .replaceAll(re_superscript_3, sub_superscript_3)
+    .replaceAll(re_superscript_4, sub_superscript_4)
+    .replaceAll(re_superscript_5, sub_superscript_5)
+    .replaceAll(re_superscript_6, sub_superscript_6)
+    .replaceAll(re_superscript_7, sub_superscript_7)
+    .replaceAll(re_superscript_8, sub_superscript_8)
+    .replaceAll(re_superscript_9, sub_superscript_9);
+
+  // workaround `split` returning `[""]` if string is empty
+  const linesClean = textClean ? textClean.split(NEWLINE) : [];
+  validateSorted(linesClean);
+}
+
+/**
+ * Print all lines that match regex
+ * @param lines array of lines
+ * @param regex regex to match for each line
+ */
+function printMatches(lines: string[], regex: RegExp): void {
+  for (const [index, line] of lines.entries()) {
+    const match = line.match(regex);
+
+    if (match) {
+      console.error(`${index + 1}:${line}`);
+    }
+  }
+}
+
+/**
+ * Validate array is sorted.
+ * Errors on first unsorted element.
+ * @param arr array
+ * @returns void
+ */
+function validateSorted<T>(arr: Array<T>): void {
+  const sorted = arr.toSorted();
+
+  for (const [index, element] of arr.entries()) {
+    if (element !== sorted[index]) {
+      throw new Error(`${index + 1}:${element}`);
+    }
+  }
+}
