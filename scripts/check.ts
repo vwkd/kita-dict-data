@@ -66,7 +66,7 @@ function getLines(text: string, lineNumber: number): Line[] {
   return text
     .split(NEWLINE)
     .slice(0, lineNumber)
-    .map((value, index) => ({ value, index }))
+    .map((value, index) => ({ value, index: index + 1 }))
     .filter((line) => !line.value.match(re_header_line))
     .filter((line) => line.value !== "")
     .filter((line, index, array) => {
@@ -230,13 +230,13 @@ function unbalancedDelimiters(lines: Line[]): void {
       .replaceAll(re_enumeration_markers_numeric, "");
 
     if (!isBalanced(valueClean, "(", ")")) {
-      console.error(`${index + 1}:${clip(value)}`);
+      console.error(`${index}:${clip(value)}`);
     }
   }
 
   for (const { index, value } of lines) {
     if (!isBalanced(value, "[", "]")) {
-      console.error(`${index + 1}:${clip(value)}`);
+      console.error(`${index}:${clip(value)}`);
     }
   }
 }
@@ -362,7 +362,7 @@ function printMatches(lines: Line[], regex: RegExp): void {
     const match = value.match(regex);
 
     if (match) {
-      console.error(`${index + 1}:${match.index}:${match}`);
+      console.error(`${index}:${match.index}:${match}`);
     }
   }
 }
@@ -388,7 +388,7 @@ function validateSorted(headwords: Line[]): void {
   for (const [i, line] of headwords.entries()) {
     const { index, value } = sorted[i];
     if (line.value !== value) {
-      console.error(`${index + 1}:${value}`);
+      console.error(`${index}:${value}`);
       Deno.exit(1);
     }
   }
