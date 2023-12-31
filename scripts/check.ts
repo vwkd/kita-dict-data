@@ -4,6 +4,14 @@ const NEWLINE = "\n";
 const DICT_PATH = "src/dict.txt";
 
 /**
+ * A line with index
+ */
+interface Line {
+  index: number;
+  value: string;
+}
+
+/**
  * Checks file until line number provided by first argument.
  */
 if (import.meta.main) {
@@ -27,9 +35,7 @@ if (import.meta.main) {
   console.info(`Checking until line ${lineNumber}...`);
 
   const text = await Deno.readTextFile(DICT_PATH);
-  const lines = text
-    .split(NEWLINE)
-    .slice(0, lineNumber);
+  const lines = getLines(text, lineNumber);
 
   illegalCharacters(lines);
   misrecognizedCharacters(lines);
@@ -43,14 +49,51 @@ if (import.meta.main) {
 }
 
 /**
+ * Get lines
+ *
+ * - removes header lines
+ * - removes empty lines
+ * - merges first line on page into last line of previous page if continued
+ *
+ * - note: error in continued line gives index of previous line, needs to manually check if is in continued line
+ * @param text text string
+ * @returns array of lines
+ */
+function getLines(text: string, lineNumber: number): Line[] {
+  const re_header_line = /^## [123]\/\d+$/;
+
+  return text
+    .split(NEWLINE)
+    .slice(0, lineNumber)
+    .map((value, index) => ({ value, index }))
+    .filter((line) => !line.value.match(re_header_line))
+    .filter((line) => line.value !== "")
+    .filter((line, index, array) => {
+      if (line.value.startsWith("♦︎")) {
+        const previous_line_value = array[index - 1];
+
+        // beware: Unicode character "♦︎" has length 2!
+        const merged_line_value = previous_line_value.value +
+          line.value.slice(2);
+
+        array[index - 1].value = merged_line_value;
+
+        return false;
+      } else {
+        return true;
+      }
+    });
+}
+
+/**
  * Checks illegal characters.
  * @param lines array of lines
  */
-function illegalCharacters(lines: string[]): void {
+function illegalCharacters(lines: Line[]): void {
   console.info("Illegal characters");
 
   const re_illegal_chars =
-    /[^\]\[♦︎0-9¹²³⁴⁵⁶⁷⁸⁹½⅛⅝⁄₁₂₃₄₅₆₇₈₉ ()|.,:;~?!\/#"'*§=†Ωδέéàêëა-ჰa-zäöüßA-ZÄÖÜẞ-]/g;
+    /[^\]\[0-9¹²³⁴⁵⁶⁷⁸⁹½⅛⅝⁄₁₂₃₄₅₆₇₈₉ ()|.,:;~?!\/"'*§=†Ωδέéàêëა-ჰa-zäöüßA-ZÄÖÜẞ-]/g;
   printMatches(lines, re_illegal_chars);
 }
 
@@ -58,7 +101,7 @@ function illegalCharacters(lines: string[]): void {
  * Checks misrecognized characters.
  * @param lines array of lines
  */
-function misrecognizedCharacters(lines: string[]): void {
+function misrecognizedCharacters(lines: Line[]): void {
   console.info("Misrecognized characters");
 
   const re_misrecognized_chars = /~[a-zäöüßA-ZÄÖÜ]/g;
@@ -72,7 +115,7 @@ function misrecognizedCharacters(lines: string[]): void {
  * Checks mixed characters.
  * @param lines array of lines
  */
-function mixedCharacters(lines: string[]): void {
+function mixedCharacters(lines: Line[]): void {
   console.info("Mixed characters");
 
   // no separation
@@ -95,7 +138,7 @@ function mixedCharacters(lines: string[]): void {
  * Checks missing superscript numbers.
  * @param lines array of lines
  */
-function missingSuperscriptNumber(lines: string[]): void {
+function missingSuperscriptNumber(lines: Line[]): void {
   console.info("Missing superscript number");
 
   const re_missing_superscript = /IV[^¹²³⁴\.]/g;
@@ -121,7 +164,7 @@ function missingSuperscriptNumber(lines: string[]): void {
  * Checks merged lines.
  * @param lines array of lines
  */
-function mergedLines(lines: string[]): void {
+function mergedLines(lines: Line[]): void {
   console.info("Merged lines");
 
   // missing space after comma except if digit or newline
@@ -154,7 +197,7 @@ function mergedLines(lines: string[]): void {
  * Checks whitespace.
  * @param lines array of lines
  */
-function whitespace(lines: string[]): void {
+function whitespace(lines: Line[]): void {
   console.info("Whitespace");
 
   // multiple spaces except if at start of line
@@ -172,7 +215,7 @@ function whitespace(lines: string[]): void {
  * - beware: can fail if line number is between two merged lines!
  * @param lines array of lines
  */
-function unbalancedDelimiters(lines: string[]): void {
+function unbalancedDelimiters(lines: Line[]): void {
   console.info("Unbalanced delimiters");
 
   const re_enumeration_markers_alphabetic =
@@ -180,19 +223,19 @@ function unbalancedDelimiters(lines: string[]): void {
   const re_enumeration_markers_numeric =
     /(?<!(Pkt\.(( \d+,)? \d+ (u\.|und))?)|(§( \d+,)*)|(§ \d+ u\.)|(§ \d+, \d+ u\.)) \d+\)/g;
 
-  for (const [index, line] of lines.entries()) {
-    let lineClean = line
+  for (const { index, value } of lines) {
+    let valueClean = value
       .replaceAll(re_enumeration_markers_alphabetic, "")
       .replaceAll(re_enumeration_markers_numeric, "");
 
-    if (!isBalanced(lineClean, "(", ")")) {
-      console.error(`${index + 1}:${line}`);
+    if (!isBalanced(valueClean, "(", ")")) {
+      console.error(`${index + 1}:${value}`);
     }
   }
 
-  for (const [index, line] of lines.entries()) {
-    if (!isBalanced(line, "[", "]")) {
-      console.error(`${index + 1}:${line}`);
+  for (const { index, value } of lines) {
+    if (!isBalanced(value, "[", "]")) {
+      console.error(`${index + 1}:${value}`);
     }
   }
 }
@@ -204,10 +247,7 @@ function unbalancedDelimiters(lines: string[]): void {
  * defines: first hyphen, then letters, then numbers
  *
  * filters out:
- * - header lines starting with two hashes
- * - empty lines
  * - verb lines starting with two spaces
- * - first line on page if continued from previous page
  *
  * removes:
  * - rest of line after last star if next line start with two spaces (infinitive suffix on verb root)
@@ -224,15 +264,13 @@ function unbalancedDelimiters(lines: string[]): void {
  * - superscript numbers with numbers (because `sort` puts superscript numbers in wrong order)
  * @param lines array of lines
  */
-function incorrectSort(lines: string[]): void {
+function incorrectSort(lines: Line[]): void {
   console.info("Incorrect sort");
 
   const re_infinitive_suffix = /([^ ]*\*[¹²³⁴⁵⁶⁷⁸⁹]?).*/g;
   const sub_infinitive_suffix = "$1";
 
-  const re_header_line = /^##/;
   const re_verb_line = /^  /;
-  const re_continued_line = /^♦︎/;
 
   const sub_empty = "";
 
@@ -267,30 +305,26 @@ function incorrectSort(lines: string[]): void {
   const re_superscript_9 = /⁹/g;
   const sub_superscript_9 = "9";
 
-  const linesClean: (string | undefined)[] = lines
+  const headwords: Line[] = lines
     .map((line, index, array) => {
       const next_line = array.at(index + 1);
 
       // beware: won't match for last line, but can't know since next page isn't fixed yet
-      if (next_line?.match(re_verb_line)) {
-        return line
+      if (next_line?.value.match(re_verb_line)) {
+        const value = line.value
           .replace(re_infinitive_suffix, sub_infinitive_suffix);
+
+        return {
+          ...line,
+          value,
+        };
       } else {
         return line;
       }
     })
+    .filter((line) => !line.value.match(re_verb_line))
     .map((line) => {
-      if (
-        line.match(re_header_line) || line.match(re_verb_line) ||
-        line.match(re_continued_line) || line == ""
-      ) {
-        return undefined;
-      } else {
-        return line;
-      }
-    })
-    .map((line) => {
-      return line?.replace(re_rest, sub_empty)
+      const value = line.value.replace(re_rest, sub_empty)
         .replace(re_hyphen_start, sub_hyphen_start)
         .replaceAll(re_hyphen, sub_hyphen)
         .replaceAll(re_parenthesis_left, sub_empty)
@@ -307,9 +341,14 @@ function incorrectSort(lines: string[]): void {
         .replaceAll(re_superscript_7, sub_superscript_7)
         .replaceAll(re_superscript_8, sub_superscript_8)
         .replaceAll(re_superscript_9, sub_superscript_9);
+
+      return {
+        ...line,
+        value,
+      };
     });
 
-  validateSorted(linesClean);
+  validateSorted(headwords);
 }
 
 /**
@@ -317,12 +356,12 @@ function incorrectSort(lines: string[]): void {
  * @param lines array of lines
  * @param regex regex to match for each line
  */
-function printMatches(lines: string[], regex: RegExp): void {
-  for (const [index, line] of lines.entries()) {
-    const match = line.match(regex);
+function printMatches(lines: Line[], regex: RegExp): void {
+  for (const { index, value } of lines) {
+    const match = value.match(regex);
 
     if (match) {
-      console.error(`${index + 1}:${line}`);
+      console.error(`${index + 1}:${value}`);
     }
   }
 }
@@ -331,20 +370,23 @@ function printMatches(lines: string[], regex: RegExp): void {
  * Validate lines are sorted.
  * Errors on first unsorted line.
  *
- * - note: needs to keep "deleted" lines to get correct index
- * @param lines array of lines, "deleted" lines are `undefined`
+ * @param headwords array of headwords
  * @returns void
  */
-function validateSorted(lines: (string | undefined)[]): void {
-  const sorted = lines.filter((s) => s !== undefined).toSorted() as string[];
+function validateSorted(headwords: Line[]): void {
+  const sorted = headwords.toSorted((a, b) => {
+    if (a.value < b.value) {
+      return -1;
+    } else if (a.value > b.value) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
 
-  const lines_with_index = lines
-    .map((line, index) => ({ index, line }))
-    .filter((item) => item.line !== undefined);
-
-  for (const [i, { index, line }] of lines_with_index.entries()) {
-    if (line !== sorted[i]) {
-      throw new Error(`${index + 1}:${line}`);
+  for (const [i, { index, value }] of headwords.entries()) {
+    if (value !== sorted[i].value) {
+      throw new Error(`${index + 1}:${value}`);
     }
   }
 }
