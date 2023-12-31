@@ -93,7 +93,7 @@ function illegalCharacters(lines: Line[]): void {
   console.info("Illegal characters");
 
   const re_illegal_chars =
-    /[^\]\[0-9¹²³⁴⁵⁶⁷⁸⁹½⅛⅝⁄₁₂₃₄₅₆₇₈₉ ()|.,:;~?!\/"'*§=†Ωδέéàêëა-ჰa-zäöüßA-ZÄÖÜẞ-]/g;
+    /[^\]\[0-9¹²³⁴⁵⁶⁷⁸⁹½⅛⅝⁄₁₂₃₄₅₆₇₈₉ ()|.,:;~?!\/"'*§=†Ωδέéàêëა-ჰa-zäöüßA-ZÄÖÜẞ-]/;
   printMatches(lines, re_illegal_chars);
 }
 
@@ -104,10 +104,10 @@ function illegalCharacters(lines: Line[]): void {
 function misrecognizedCharacters(lines: Line[]): void {
   console.info("Misrecognized characters");
 
-  const re_misrecognized_chars = /~[a-zäöüßA-ZÄÖÜ]/g;
+  const re_misrecognized_chars = /~[a-zäöüßA-ZÄÖÜ]/;
   printMatches(lines, re_misrecognized_chars);
 
-  const re_misrecognized_chars2 = /[a-zäöüßA-ZÄÖÜ]~/g;
+  const re_misrecognized_chars2 = /[a-zäöüßA-ZÄÖÜ]~/;
   printMatches(lines, re_misrecognized_chars2);
 }
 
@@ -119,18 +119,18 @@ function mixedCharacters(lines: Line[]): void {
   console.info("Mixed characters");
 
   // no separation
-  const re_mixed_chars = /[a-zäöüßA-ZÄÖÜ][ა-ჰ]/g;
+  const re_mixed_chars = /[a-zäöüßA-ZÄÖÜ][ა-ჰ]/;
   printMatches(lines, re_mixed_chars);
 
-  const re_mixed_chars2 = /[ა-ჰ][a-zäöüßA-ZÄÖÜ]/g;
+  const re_mixed_chars2 = /[ა-ჰ][a-zäöüßA-ZÄÖÜ]/;
   printMatches(lines, re_mixed_chars2);
 
   // separated by space
-  const re_mixed_chars3 = /[a-zäöüßA-ZÄÖÜ]-[ა-ჰ]/g;
+  const re_mixed_chars3 = /[a-zäöüßA-ZÄÖÜ]-[ა-ჰ]/;
   printMatches(lines, re_mixed_chars3);
 
   const re_mixed_chars4 =
-    /[ა-ჰ]-(?!Spiel|weise|Massen|Brot|Instruments|Sänger|Partei|Tänzer)[a-zäöüßA-ZÄÖÜ]/g;
+    /[ა-ჰ]-(?!Spiel|weise|Massen|Brot|Instruments|Sänger|Partei|Tänzer)[a-zäöüßA-ZÄÖÜ]/;
   printMatches(lines, re_mixed_chars4);
 }
 
@@ -141,22 +141,22 @@ function mixedCharacters(lines: Line[]): void {
 function missingSuperscriptNumber(lines: Line[]): void {
   console.info("Missing superscript number");
 
-  const re_missing_superscript = /IV[^¹²³⁴\.]/g;
+  const re_missing_superscript = /IV[^¹²³⁴\.]/;
   printMatches(lines, re_missing_superscript);
 
-  const re_missing_superscript2 = /(?<!R)P[^¹²³\.a-zäöüR]/g;
+  const re_missing_superscript2 = /(?<!R)P[^¹²³\.a-zäöüR]/;
   printMatches(lines, re_missing_superscript2);
 
-  const re_missing_superscript3 = /RM[^¹²³⁴]/g;
+  const re_missing_superscript3 = /RM[^¹²³⁴]/;
   printMatches(lines, re_missing_superscript3);
 
-  const re_missing_superscript4 = /RP[^¹²³⁴⁵⁶⁷]/g;
+  const re_missing_superscript4 = /RP[^¹²³⁴⁵⁶⁷]/;
   printMatches(lines, re_missing_superscript4);
 
-  const re_missing_superscript5 = /(?<!K)T[^¹²³⁴⁵\.a-zäöü]/g;
+  const re_missing_superscript5 = /(?<!K)T[^¹²³⁴⁵\.a-zäöü]/;
   printMatches(lines, re_missing_superscript5);
 
-  const re_missing_superscript6 = /ZP[^¹²³]/g;
+  const re_missing_superscript6 = /ZP[^¹²³]/;
   printMatches(lines, re_missing_superscript6);
 }
 
@@ -168,28 +168,28 @@ function mergedLines(lines: Line[]): void {
   console.info("Merged lines");
 
   // missing space after comma except if digit or newline
-  const re_merged_lines = /,(?! |\d|$)/g;
+  const re_merged_lines = /,(?! |\d|$)/;
   printMatches(lines, re_merged_lines);
 
   // missing space after semicolon except if newline
-  const re_merged_lines2 = /;(?! |$)/g;
+  const re_merged_lines2 = /;(?! |$)/;
   printMatches(lines, re_merged_lines2);
 
   // `Inf.` in middle of line
-  const re_merged_lines3 = /(?<!^ |  \d\.) Inf\./g;
+  const re_merged_lines3 = /(?<!^ |  \d\.) Inf\./;
   printMatches(lines, re_merged_lines3);
 
   // hyphen followed by space except if first word in line
   const re_merged_lines4 =
-    /(?<= )\S+- (?!(u\. )|(od\. )|(und )|(oder )|(bzw\. )|(bis )|(usw\.\)))/g;
+    /(?<= )\S+- (?!(u\. )|(od\. )|(und )|(oder )|(bzw\. )|(bis )|(usw\.\)))/;
   printMatches(lines, re_merged_lines4);
 
   // hyphen followed by slash
-  const re_merged_lines5 = /:\//g;
+  const re_merged_lines5 = /:\//;
   printMatches(lines, re_merged_lines5);
 
   // slash followed by whitespace except if another slash with whitespace before, e.g. ` /s. unten/ `
-  const re_merged_lines6 = /(?<! \/[^\/]+)\/ /g;
+  const re_merged_lines6 = /(?<! \/[^\/]+)\/ /;
   printMatches(lines, re_merged_lines6);
 }
 
@@ -201,11 +201,11 @@ function whitespace(lines: Line[]): void {
   console.info("Whitespace");
 
   // multiple spaces except if at start of line
-  const re_multiple_space = /(?<!^) {2,}/g;
+  const re_multiple_space = /(?<!^) {2,}/;
   printMatches(lines, re_multiple_space);
 
   // trailing space
-  const re_trailing_space = / $/g;
+  const re_trailing_space = / $/;
   printMatches(lines, re_trailing_space);
 }
 
@@ -354,14 +354,14 @@ function incorrectSort(lines: Line[]): void {
 /**
  * Print all lines that match regex
  * @param lines array of lines
- * @param regex regex to match for each line
+ * @param regex regex to match for each line, without global flag to get index
  */
 function printMatches(lines: Line[], regex: RegExp): void {
   for (const { index, value } of lines) {
     const match = value.match(regex);
 
     if (match) {
-      console.error(`${index + 1}:${value}`);
+      console.error(`${index + 1}:${match.index}:${match}`);
     }
   }
 }
