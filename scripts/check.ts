@@ -385,9 +385,11 @@ function validateSorted(headwords: Line[]): void {
     }
   });
 
-  for (const [i, { index, value }] of headwords.entries()) {
-    if (value !== sorted[i].value) {
-      throw new Error(`${index + 1}:${value}`);
+  for (const [i, line] of headwords.entries()) {
+    const { index, value } = sorted[i];
+    if (line.value !== value) {
+      console.error(`${index + 1}:${value}`);
+      Deno.exit(1);
     }
   }
 }
