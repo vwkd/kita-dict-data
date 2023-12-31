@@ -2,6 +2,7 @@
 
 const NEWLINE = "\n";
 const DICT_PATH = "src/dict.txt";
+const MAX_LENGTH_LOG_VALUE = 80;
 
 /**
  * A line with index
@@ -229,13 +230,13 @@ function unbalancedDelimiters(lines: Line[]): void {
       .replaceAll(re_enumeration_markers_numeric, "");
 
     if (!isBalanced(valueClean, "(", ")")) {
-      console.error(`${index + 1}:${value}`);
+      console.error(`${index + 1}:${clip(value)}`);
     }
   }
 
   for (const { index, value } of lines) {
     if (!isBalanced(value, "[", "]")) {
-      console.error(`${index + 1}:${value}`);
+      console.error(`${index + 1}:${clip(value)}`);
     }
   }
 }
@@ -419,4 +420,17 @@ function isBalanced(
   }
 
   return count == 0;
+}
+
+/**
+ * Clips string at max length of log value
+ * @param str string to trim
+ * @returns clipped string with "..."
+ */
+function clip(str: string): string {
+  if (str.length > MAX_LENGTH_LOG_VALUE) {
+    return str.slice(0, MAX_LENGTH_LOG_VALUE) + "...";
+  } else {
+    return str;
+  }
 }
