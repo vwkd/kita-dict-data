@@ -37,6 +37,7 @@ if (import.meta.main) {
   missingSuperscriptNumber(lines);
   mergedLines(lines);
   whitespace(lines);
+  unbalancedDelimiters(lines);
 
   incorrectSort(lines);
 }
@@ -163,6 +164,37 @@ function whitespace(lines: string[]): void {
   // trailing space
   const re_trailing_space = / $/g;
   printMatches(lines, re_trailing_space);
+}
+
+/**
+ * Checks unbalanced delimiters.
+ *
+ * - beware: can fail if line number is between two merged lines!
+ * @param lines array of lines
+ */
+function unbalancedDelimiters(lines: string[]): void {
+  console.info("Unbalanced delimiters");
+
+  const re_enumeration_markers_alphabetic =
+    /(?<!(Pkt\.)|(§( \d+,)+)|(ca\. \d+)) [abcde]\)/g;
+  const re_enumeration_markers_numeric =
+    /(?<!(Pkt\.(( \d+,)? \d+ (u\.|und))?)|(§( \d+,)*)|(§ \d+ u\.)|(§ \d+, \d+ u\.)) \d+\)/g;
+
+  for (const [index, line] of lines.entries()) {
+    let lineClean = line
+      .replaceAll(re_enumeration_markers_alphabetic, "")
+      .replaceAll(re_enumeration_markers_numeric, "");
+
+    if (!isBalanced(lineClean, "(", ")")) {
+      console.error(`${index + 1}:${line}`);
+    }
+  }
+
+  for (const [index, line] of lines.entries()) {
+    if (!isBalanced(line, "[", "]")) {
+      console.error(`${index + 1}:${line}`);
+    }
+  }
 }
 
 /**
@@ -315,4 +347,34 @@ function validateSorted(lines: (string | undefined)[]): void {
       throw new Error(`${index + 1}:${line}`);
     }
   }
+}
+
+/**
+ * Checks if delimiters are balanced
+ * @param str string to check
+ * @param delimiterOpen open delimiter, e.g. `(`, `[`, etc.
+ * @param delimiterClose close delimiter, e.g. `)`, `]`, etc.
+ * @returns true if all delimiters are balanced, false otherwise
+ */
+function isBalanced(
+  str: string,
+  delimiterOpen: string,
+  delimiterClose: string,
+): boolean {
+  let count = 0;
+
+  for (let i = 0; i < str.length; i += 1) {
+    // closing delimiter without matching opening delimiter
+    if (count < 0) {
+      return false;
+    }
+
+    if (str[i] === delimiterOpen) {
+      count += 1;
+    } else if (str[i] === delimiterClose) {
+      count -= 1;
+    }
+  }
+
+  return count == 0;
 }
