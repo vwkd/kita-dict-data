@@ -2,7 +2,6 @@
 
 const NEWLINE = "\n";
 const DICT_PATH = "src/dict.txt";
-const MAX_LENGTH_LOG_VALUE = 80;
 
 /**
  * A line with index
@@ -229,14 +228,17 @@ function unbalancedDelimiters(lines: Line[]): void {
       .replaceAll(re_enumeration_markers_alphabetic, "")
       .replaceAll(re_enumeration_markers_numeric, "");
 
-    if (!isBalanced(valueClean, "(", ")")) {
-      console.error(`${index}:${clip(value)}`);
+    const b = isBalanced(valueClean, "(", ")");
+
+    if (b !== true) {
+      console.error(`${index}:${b.index}:${b.delimiter == "open" ? "(" : ")"}`);
     }
   }
 
   for (const { index, value } of lines) {
-    if (!isBalanced(value, "[", "]")) {
-      console.error(`${index}:${clip(value)}`);
+    const b = isBalanced(value, "[", "]");
+    if (b !== true) {
+      console.error(`${index}:${b.index}:${b.delimiter == "open" ? "[" : "]"}`);
     }
   }
 }
@@ -405,34 +407,24 @@ function isBalanced(
   str: string,
   delimiterOpen: string,
   delimiterClose: string,
-): boolean {
-  let count = 0;
+): true | { index: number; delimiter: "open" | "close" } {
+  let openDelimiterIndices: number[] = [];
 
   for (let i = 0; i < str.length; i += 1) {
-    // closing delimiter without matching opening delimiter
-    if (count < 0) {
-      return false;
-    }
-
     if (str[i] === delimiterOpen) {
-      count += 1;
+      openDelimiterIndices.push(i);
     } else if (str[i] === delimiterClose) {
-      count -= 1;
+      // closing delimiter without matching opening delimiter
+      if (openDelimiterIndices.length == 0) {
+        return { index: i - 1, delimiter: "close" };
+      }
+      openDelimiterIndices.pop();
     }
   }
 
-  return count == 0;
-}
-
-/**
- * Clips string at max length of log value
- * @param str string to trim
- * @returns clipped string with "..."
- */
-function clip(str: string): string {
-  if (str.length > MAX_LENGTH_LOG_VALUE) {
-    return str.slice(0, MAX_LENGTH_LOG_VALUE) + "...";
+  if (openDelimiterIndices.length > 0) {
+    return { index: openDelimiterIndices[0] + 1, delimiter: "open" };
   } else {
-    return str;
+    return true;
   }
 }
