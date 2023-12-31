@@ -18,18 +18,21 @@ if (import.meta.main) {
   let lineNumberArg = Deno.args[0];
 
   if (!lineNumberArg) {
-    throw new Error("No line number argument provided.");
+    console.error("No line number argument provided.");
+    Deno.exit(1);
   }
 
   // note: stops parsing after first invalid character
   const lineNumber = parseInt(lineNumberArg);
 
   if (Number.isNaN(lineNumber)) {
-    throw new Error("Line number argument must be an integer.");
+    console.error("Line number argument must be an integer.");
+    Deno.exit(1);
   }
 
   if (lineNumber < 0) {
-    throw new Error("Line number argument must be a non-negative integer.");
+    console.error("Line number argument must be a non-negative integer.");
+    Deno.exit(1);
   }
 
   console.info(`Checking until line ${lineNumber}...`);
