@@ -71,22 +71,57 @@ function getLines(text: string, nextPage: string): Line[] {
   return lines
     .slice(0, nextPageIndex)
     .map((value, index) => ({ value, index: index + 1 }))
-    .filter((line) => !line.value.match(re_header_line))
-    .filter((line) => line.value !== "")
+    .filter((line, index, array) => {
+      // filter out header lines only if previous and next lines are empty or if at start of string
+      if (line.value.match(re_header_line)) {
+        const previous_line = array.at(index - 1);
+
+        if (previous_line == undefined) {
+          return false;
+        }
+
+        const next_line = array.at(index + 1);
+
+        if (previous_line?.value == "" && next_line?.value == "") {
+          return false;
+        }
+      }
+
+      // filter out empty lines only if previous or next line is header line, or at end of string
+      if (line.value == "") {
+        const next_line = array.at(index + 1);
+
+        if (next_line == undefined || next_line?.value.match(re_header_line)) {
+          return false;
+        }
+
+        const previous_line = array.at(index - 1);
+
+        if (previous_line?.value.match(re_header_line)) {
+          return false;
+        }
+      }
+
+      return true;
+    })
     .filter((line, index, array) => {
       if (line.value.startsWith("♦︎")) {
-        const previous_line_value = array[index - 1];
+        // note: can't just use previous line since might mistakenly be empty
+        const previous_line_index = array.findLastIndex((line, i) =>
+          i < index && line.value !== ""
+        );
+        const previous_line_value = array[previous_line_index];
 
         // beware: Unicode character "♦︎" has length 2!
         const merged_line_value = previous_line_value.value +
           line.value.slice(2);
 
-        array[index - 1].value = merged_line_value;
+        array[previous_line_index].value = merged_line_value;
 
         return false;
-      } else {
-        return true;
       }
+
+      return true;
     });
 }
 
@@ -96,6 +131,9 @@ function getLines(text: string, nextPage: string): Line[] {
  */
 function illegalCharacters(lines: Line[]): void {
   console.info("Illegal characters");
+
+  const re_empty_line = /^$/;
+  printMatches(lines, re_empty_line);
 
   const re_illegal_chars =
     /[^\]\[0-9¹²³⁴⁵⁶⁷⁸⁹½⅛⅝⁄₁₂₃₄₅₆₇₈₉ ()|.,:;~?!\/"'*§=†Ωδέéàêëა-ჰa-zäöüßA-ZÄÖÜẞ-]/;
