@@ -47,15 +47,21 @@ if (import.meta.main) {
   const text = await Deno.readTextFile(DICT_PATH);
   const lines = getLines(text, nextPage);
 
-  illegalCharacters(lines);
-  misrecognizedCharacters(lines);
-  mixedCharacters(lines);
-  missingSuperscriptNumber(lines);
-  mergedLines(lines);
-  whitespace(lines);
-  unbalancedDelimiters(lines);
+  let hasErrors = false;
 
-  incorrectSort(lines);
+  hasErrors = illegalCharacters(lines) || hasErrors;
+  hasErrors = misrecognizedCharacters(lines) || hasErrors;
+  hasErrors = mixedCharacters(lines) || hasErrors;
+  hasErrors = missingSuperscriptNumber(lines) || hasErrors;
+  hasErrors = mergedLines(lines) || hasErrors;
+  hasErrors = whitespace(lines) || hasErrors;
+  hasErrors = unbalancedDelimiters(lines) || hasErrors;
+
+  hasErrors = incorrectSort(lines) || hasErrors;
+
+  if (hasErrors) {
+    Deno.exit(1);
+  }
 }
 
 /**
@@ -138,7 +144,7 @@ function getLines(text: string, nextPage: string): Line[] {
  * Checks illegal characters.
  * @param lines array of lines
  */
-function illegalCharacters(lines: Line[]): void {
+function illegalCharacters(lines: Line[]): boolean {
   const matches: Match[] = [];
 
   const re_empty_line = /^$/;
@@ -148,14 +154,14 @@ function illegalCharacters(lines: Line[]): void {
     /[^\]\[0-9¹²³⁴⁵⁶⁷⁸⁹½⅛⅝⁄₁₂₃₄₅₆₇₈₉ ()|.,:;~?!\/"'*§=†Ωδέéàêëა-ჰa-zäöüßA-ZÄÖÜẞ-]/;
   matches.push(...getMatches(lines, re_illegal_chars));
 
-  printMatches(matches, "Illegal characters");
+  return printMatches(matches, "Illegal characters");
 }
 
 /**
  * Checks misrecognized characters.
  * @param lines array of lines
  */
-function misrecognizedCharacters(lines: Line[]): void {
+function misrecognizedCharacters(lines: Line[]): boolean {
   const matches: Match[] = [];
 
   const re_misrecognized_chars = /~[a-zäöüßA-ZÄÖÜ]/;
@@ -164,14 +170,14 @@ function misrecognizedCharacters(lines: Line[]): void {
   const re_misrecognized_chars2 = /[a-zäöüßA-ZÄÖÜ]~/;
   matches.push(...getMatches(lines, re_misrecognized_chars2));
 
-  printMatches(matches, "Misrecognized characters");
+  return printMatches(matches, "Misrecognized characters");
 }
 
 /**
  * Checks mixed characters.
  * @param lines array of lines
  */
-function mixedCharacters(lines: Line[]): void {
+function mixedCharacters(lines: Line[]): boolean {
   const matches: Match[] = [];
 
   // no separation
@@ -189,14 +195,14 @@ function mixedCharacters(lines: Line[]): void {
     /[ა-ჰ]-(?!Spiel|weise|Massen|Brot|Instruments|Sänger|Partei|Tänzer)[a-zäöüßA-ZÄÖÜ]/;
   matches.push(...getMatches(lines, re_mixed_chars4));
 
-  printMatches(matches, "Mixed characters");
+  return printMatches(matches, "Mixed characters");
 }
 
 /**
  * Checks missing superscript numbers.
  * @param lines array of lines
  */
-function missingSuperscriptNumber(lines: Line[]): void {
+function missingSuperscriptNumber(lines: Line[]): boolean {
   const matches: Match[] = [];
 
   const re_missing_superscript = /IV[^¹²³⁴\.]/;
@@ -217,14 +223,14 @@ function missingSuperscriptNumber(lines: Line[]): void {
   const re_missing_superscript6 = /ZP[^¹²³]/;
   matches.push(...getMatches(lines, re_missing_superscript6));
 
-  printMatches(matches, "Missing superscript number");
+  return printMatches(matches, "Missing superscript number");
 }
 
 /**
  * Checks merged lines.
  * @param lines array of lines
  */
-function mergedLines(lines: Line[]): void {
+function mergedLines(lines: Line[]): boolean {
   const matches: Match[] = [];
 
   // missing space after comma except if digit or newline
@@ -256,14 +262,14 @@ function mergedLines(lines: Line[]): void {
   const re_merged_lines7 = /(?!-(und|oder))[^a-zäöüßA-ZÄÖÜ][a-zäöüß]+-[A-ZÄÖÜ]/;
   matches.push(...getMatches(lines, re_merged_lines7));
 
-  printMatches(matches, "Merged lines");
+  return printMatches(matches, "Merged lines");
 }
 
 /**
  * Checks whitespace.
  * @param lines array of lines
  */
-function whitespace(lines: Line[]): void {
+function whitespace(lines: Line[]): boolean {
   const matches: Match[] = [];
 
   // multiple spaces except if at start of line
@@ -274,7 +280,7 @@ function whitespace(lines: Line[]): void {
   const re_trailing_space = / $/;
   matches.push(...getMatches(lines, re_trailing_space));
 
-  printMatches(matches, "Whitespace");
+  return printMatches(matches, "Whitespace");
 }
 
 /**
@@ -283,7 +289,7 @@ function whitespace(lines: Line[]): void {
  * - beware: can fail if last line of last page is continued on next page!
  * @param lines array of lines
  */
-function unbalancedDelimiters(lines: Line[]): void {
+function unbalancedDelimiters(lines: Line[]): boolean {
   const matches: Match[] = [];
 
   const re_enumeration_markers_alphabetic =
@@ -323,7 +329,7 @@ function unbalancedDelimiters(lines: Line[]): void {
     }
   }));
 
-  printMatches(matches, "Unbalanced delimiters");
+  return printMatches(matches, "Unbalanced delimiters");
 }
 
 /**
@@ -350,7 +356,7 @@ function unbalancedDelimiters(lines: Line[]): void {
  * - superscript numbers with numbers (because `sort` puts superscript numbers in wrong order)
  * @param lines array of lines
  */
-function incorrectSort(lines: Line[]): void {
+function incorrectSort(lines: Line[]): boolean {
   const re_infinitive_suffix = /([^ ]*\*[¹²³⁴⁵⁶⁷⁸⁹]?).*/g;
   const sub_infinitive_suffix = "$1";
 
@@ -432,7 +438,7 @@ function incorrectSort(lines: Line[]): void {
       };
     });
 
-  validateSorted(headwords, "Incorrect sort");
+  return validateSorted(headwords, "Incorrect sort");
 }
 
 /**
@@ -478,15 +484,20 @@ function getMatchesCallback(
  * Print matches for header
  * @param matches array of matches
  * @param log_title info log title
+ * @returns true if printed matches, else false
  */
-function printMatches(matches: Match[], log_title: string) {
+function printMatches(matches: Match[], log_title: string): boolean {
   if (matches.length > 0) {
     console.info("Error:", log_title);
 
     for (const { index, match, index_column } of matches) {
       console.error(`${index}:${index_column}:${match}`);
     }
+
+    return true;
   }
+
+  return false;
 }
 
 /**
@@ -495,9 +506,9 @@ function printMatches(matches: Match[], log_title: string) {
  *
  * @param headwords array of headwords
  * @param log_title info log title
- * @returns void
+ * @returns true if printed matches, else false
  */
-function validateSorted(headwords: Line[], log_title: string): void {
+function validateSorted(headwords: Line[], log_title: string): boolean {
   const sorted = headwords.toSorted((a, b) => {
     if (a.value < b.value) {
       return -1;
@@ -513,9 +524,11 @@ function validateSorted(headwords: Line[], log_title: string): void {
     if (line.value !== value) {
       console.info(log_title);
       console.error(`${index}:${value}`);
-      Deno.exit(1);
+      return true;
     }
   }
+
+  return false;
 }
 
 /**
