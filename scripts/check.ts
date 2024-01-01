@@ -196,6 +196,10 @@ function mergedLines(lines: Line[]): void {
   // slash followed by whitespace except if another slash with whitespace before, e.g. ` /s. unten/ `
   const re_merged_lines6 = /(?<! \/[^\/]+)\/ /;
   printMatches(lines, re_merged_lines6);
+
+  // lowercase, hyphen, uppercase
+  const re_merged_lines7 = /(?!-(und|oder))[^a-zäöüßA-ZÄÖÜ][a-zäöüß]+-[A-ZÄÖÜ]/;
+  printMatches(lines, re_merged_lines7);
 }
 
 /**
