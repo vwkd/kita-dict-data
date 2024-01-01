@@ -1,5 +1,7 @@
 #!/usr/bin/env -S deno run --ext=ts --allow-read
 
+import { PAGES } from "https://raw.githubusercontent.com/vwkd/kita-utils/main/src/dict.ts";
+
 const NEWLINE = "\n";
 const DICT_PATH = "src/dict.txt";
 
@@ -12,33 +14,29 @@ interface Line {
 }
 
 /**
- * Checks file until line number provided by first argument.
+ * Checks dict up to and including last page provided by first argument.
  */
 if (import.meta.main) {
-  let lineNumberArg = Deno.args[0];
+  let lastPageArg = Deno.args[0];
 
-  if (!lineNumberArg) {
-    console.error("No line number argument provided.");
+  if (!lastPageArg) {
+    console.error("No page number argument provided.");
     Deno.exit(1);
   }
 
-  // note: stops parsing after first invalid character
-  const lineNumber = parseInt(lineNumberArg);
+  const lastPageIndex = PAGES.findIndex((page) => page == lastPageArg);
 
-  if (Number.isNaN(lineNumber)) {
-    console.error("Line number argument must be an integer.");
+  if (lastPageIndex < 0) {
+    console.error(`Last page '${lastPageArg}' not found`);
     Deno.exit(1);
   }
 
-  if (lineNumber < 0) {
-    console.error("Line number argument must be a non-negative integer.");
-    Deno.exit(1);
-  }
+  const nextPage = PAGES.at(lastPageIndex + 1);
 
-  console.info(`Checking until line ${lineNumber}...`);
+  console.info(`Checking until page ${nextPage}...`);
 
   const text = await Deno.readTextFile(DICT_PATH);
-  const lines = getLines(text, lineNumber);
+  const lines = getLines(text, nextPage);
 
   illegalCharacters(lines);
   misrecognizedCharacters(lines);
@@ -59,15 +57,19 @@ if (import.meta.main) {
  * - merges first line on page into last line of previous page if continued
  *
  * - note: error in continued line gives index of previous line, needs to manually check if is in continued line
- * @param text text string
+ * @param text text
+ * @param nextPage next page
  * @returns array of lines
  */
-function getLines(text: string, lineNumber: number): Line[] {
+function getLines(text: string, nextPage: string): Line[] {
   const re_header_line = /^## [123]\/\d+$/;
 
-  return text
-    .split(NEWLINE)
-    .slice(0, lineNumber)
+  const lines = text.split(NEWLINE);
+
+  const nextPageIndex = lines.findIndex((line) => line == `## ${nextPage}`);
+
+  return lines
+    .slice(0, nextPageIndex)
     .map((value, index) => ({ value, index: index + 1 }))
     .filter((line) => !line.value.match(re_header_line))
     .filter((line) => line.value !== "")
@@ -215,7 +217,7 @@ function whitespace(lines: Line[]): void {
 /**
  * Checks unbalanced delimiters.
  *
- * - beware: can fail if line number is between two merged lines!
+ * - beware: can fail if last line of last page is continued on next page!
  * @param lines array of lines
  */
 function unbalancedDelimiters(lines: Line[]): void {
