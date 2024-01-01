@@ -286,7 +286,7 @@ function whitespace(lines: Line[]): boolean {
 /**
  * Checks unbalanced delimiters.
  *
- * - beware: can fail if last line of last page is continued on next page!
+ * - beware: can report false positive if last line of last page is continued on next page!
  * @param lines array of lines
  */
 function unbalancedDelimiters(lines: Line[]): boolean {
