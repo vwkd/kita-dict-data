@@ -280,6 +280,11 @@ function whitespace(lines: Line[]): boolean {
   const re_trailing_space = / $/;
   matches.push(...getMatches(lines, re_trailing_space));
 
+  // lowercase, delimiter, uppercase
+  // note: `+` and `*` quantifiers only to print more readable matches than one character
+  const re_missing_space = /[a-zäöüß]+[()][A-ZÄÖÜ][a-zäöüß]*/;
+  matches.push(...getMatches(lines, re_missing_space));
+
   // space before closing delimiter or after opening delimiter
   const re_delimiter = /( [)\]])|([(\[] )/;
   matches.push(...getMatches(lines, re_delimiter));
