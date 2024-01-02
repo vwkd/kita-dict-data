@@ -298,19 +298,21 @@ function whitespace(lines: Line[]): boolean {
 
 /**
  * Checks unbalanced delimiters.
- *
- * - beware: can report false positive if last line of last page is continued on next page!
  * @param lines array of lines
  */
 function unbalancedDelimiters(lines: Line[]): boolean {
   const matches: Match[] = [];
+
+  // note: exclude last line of last page since may report false positive if continued on next page
+  // if indeed error then finds on next check of next page
+  const linesMinusOne = lines.slice(0, -1);
 
   const re_enumeration_markers_alphabetic =
     /(?<!(Pkt\.)|(§( \d+,)+)|(ca\. \d+)) [abcde]\)/g;
   const re_enumeration_markers_numeric =
     /(?<!(Pkt\.(( \d+,)? \d+ (u\.|und))?)|(§( \d+,)*)|(§ \d+ u\.)|(§ \d+, \d+ u\.)) \d+\)/g;
 
-  matches.push(...getMatchesCallback(lines, (line) => {
+  matches.push(...getMatchesCallback(linesMinusOne, (line) => {
     let valueClean = line.value
       .replaceAll(re_enumeration_markers_alphabetic, "")
       .replaceAll(re_enumeration_markers_numeric, "");
@@ -328,7 +330,7 @@ function unbalancedDelimiters(lines: Line[]): boolean {
     }
   }));
 
-  matches.push(...getMatchesCallback(lines, (line) => {
+  matches.push(...getMatchesCallback(linesMinusOne, (line) => {
     const b = isBalanced(line.value, "[", "]");
 
     if (b !== true) {
