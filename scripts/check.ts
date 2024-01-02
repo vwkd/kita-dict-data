@@ -280,6 +280,14 @@ function whitespace(lines: Line[]): boolean {
   const re_trailing_space = / $/;
   matches.push(...getMatches(lines, re_trailing_space));
 
+  // space before closing delimiter or after opening delimiter
+  const re_delimiter = /( [)\]])|([(\[] )/;
+  matches.push(...getMatches(lines, re_delimiter));
+
+  // space before vertical bar
+  const re_vertical_bar = / \|(?!\|)/;
+  matches.push(...getMatches(lines, re_vertical_bar));
+
   return printMatches(matches, "Whitespace");
 }
 
