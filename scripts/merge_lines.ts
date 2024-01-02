@@ -29,14 +29,16 @@ function validate(text: string): void {
 
   // lines have no trailing whitespace
   if (lines.some((line) => line.match(re_trailing_whitespace))) {
-    throw new Error("Lines have trailing whitespace");
+    console.error("Lines have trailing whitespace");
+    Deno.exit(1);
   }
 
   // lines have no leading whitespace, except first
   if (
     lines.slice(1).some((line) => line.match(re_leading_whitespace))
   ) {
-    throw new Error("Lines have leading whitespace");
+    console.error("Lines have leading whitespace");
+    Deno.exit(1);
   }
 }
 
