@@ -77,8 +77,16 @@ function mergeLines(text: string): string {
     .replaceAll(/([^ ]-\))\n(.)/g, "$1$2")
     // line ends in `)` preceeded by `(`, uppercase, and lowercase and next line starts with uppercase, e.g. `(Kegel)\nBahn`, but not `(in Zusammensetzungen) Schüler`
     .replaceAll(/(\([A-ZÄÖÜẞ][a-zäöüß]+\))\n([A-ZÄÖÜẞ])/g, "$1$2")
+    // line ends in abbreviation `d.` and next line starts with `h.`
+    .replaceAll(/(d\.)\n(h\.)/g, "$1$2")
     // line ends in `u-` or `o-`, and next line starts with `imer\.` or `ratsch\.`
     .replaceAll(/((u-)|(o-))\n((imer\.)|(ratsch\.))/g, "$1$4")
+    // line ends in abbreviation `u.` and next line starts with `a.`
+    .replaceAll(/(u\.)\n(a\.)/g, "$1$2")
+    // line ends in abbreviation `u.` and next line starts with `ä.`
+    .replaceAll(/(u\.)\n(ä\.)/g, "$1$2")
+    // line ends in abbreviation `z.` and next line starts with `B.`
+    .replaceAll(/(z\.)\n(B\.)/g, "$1$2")
     // line ends in abbreviation `ad.` and next line starts with `dem.`
     .replaceAll(/(ad\.)\n(dem\.)/g, "$1$2")
     // line ends in abbreviation `ad.` and next line starts with `int.`
@@ -107,6 +115,10 @@ function mergeLines(text: string): string {
     .replaceAll(/([^a-zäöüßA-ZÄÖÜẞ]f\/)\n(pl[^a-zäöüßA-ZÄÖÜẞ])/g, "$1$2")
     // line ends in abbreviation `3.` and next line starts with `Gr.`
     .replaceAll(/(3\.)\n(Gr\.)/g, "$1$2")
+    // line ends in abbreviation `3.` and next line starts with `sg`
+    .replaceAll(/([123]\.)\n(sg)/g, "$1$2")
+    // line ends in abbreviation `3.` and next line starts with `pl`
+    .replaceAll(/([123]\.)\n(pl)/g, "$1$2")
     // line ends in abbreviation `i.` and next line starts with `O.`
     .replaceAll(/(i\.)\n(O\.)/g, "$1$2")
     // line ends in abbreviation `j-` and next line starts with `d`
@@ -131,6 +143,10 @@ function mergeLines(text: string): string {
     .replaceAll(/([^a-zäöüßA-ZÄÖÜẞ]m-)\n(s[^a-zäöüßA-ZÄÖÜẞ])/g, "$1$2")
     // line ends in abbreviation `n/` and next line starts with `pl`
     .replaceAll(/([^a-zäöüßA-ZÄÖÜẞ]n\/)\n(pl[^a-zäöüßA-ZÄÖÜẞ])/g, "$1$2")
+    // line ends in abbreviation `opt.` and next line starts with `fut`
+    .replaceAll(/(opt\.)\n(fut)/g, "$1$2")
+    // line ends in abbreviation `opt.` and next line starts with `pr`
+    .replaceAll(/(opt\.)\n(pr)/g, "$1$2")
     // line ends in abbreviation `p.` and next line starts with `a.`
     .replaceAll(/(p\.)\n(a\.)/g, "$1$2")
     // line ends in abbreviation `p.` and next line starts with `f.`
