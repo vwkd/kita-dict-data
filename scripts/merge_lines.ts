@@ -6,6 +6,8 @@ const NEWLINE = "\n";
 
 /**
  * Merges lines in standard input and prints to standard output.
+ *
+ * - assumes has trailing newline
  */
 if (import.meta.main) {
   const text = await toText(Deno.stdin.readable);
@@ -26,6 +28,8 @@ function validate(text: string): void {
 
   const re_trailing_whitespace = / $/;
   const re_leading_whitespace = /^ /;
+  const re_trailing_slash = /\/$/;
+  const re_leading_slash = /^\//;
 
   // lines have no trailing whitespace
   if (lines.some((line) => line.match(re_trailing_whitespace))) {
@@ -38,6 +42,20 @@ function validate(text: string): void {
     lines.slice(1).some((line) => line.match(re_leading_whitespace))
   ) {
     console.error("Lines have leading whitespace");
+    Deno.exit(1);
+  }
+
+  // lines have no trailing slash, except last non-empty
+  if (lines.slice(0, -2).some((line) => line.match(re_trailing_slash))) {
+    console.error("Manually merge lines with trailing slash");
+    Deno.exit(1);
+  }
+
+  // lines have no leading slash, except first
+  if (
+    lines.slice(1).some((line) => line.match(re_leading_slash))
+  ) {
+    console.error("Manually merge lines with leading slash");
     Deno.exit(1);
   }
 }
@@ -67,12 +85,6 @@ function mergeLines(text: string): string {
       /([a-zäöüß]-, [A-ZÄÖÜẞ]?[a-zäöüß]+-)\n([a-zäöüß\(\)]+([ ,;\/\n]))/g,
       "$1$2",
     )
-    // line ends in `/`
-    // todo: not always correct, e.g. when uses slashes to enclose explanation
-    .replaceAll(/(\/)\n(.)/g, "$1$2")
-    // next line starts with `/`
-    // todo: not always correct, e.g. when uses slashes to enclose explanation
-    .replaceAll(/\n(\/)/g, "$1")
     // line ends in `-)` preceeded by non-space
     .replaceAll(/([^ ]-\))\n(.)/g, "$1$2")
     // line ends in `)` preceeded by `(`, uppercase, and lowercase and next line starts with uppercase, e.g. `(Kegel)\nBahn`, but not `(in Zusammensetzungen) Schüler`
