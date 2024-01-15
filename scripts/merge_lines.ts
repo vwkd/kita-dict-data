@@ -185,7 +185,7 @@ function mergeLines(text: string): string {
     // line ends in `-` and next line starts with `od.`
     .replaceAll(/(-)\n(od\.)/g, "$1 $2")
     // -------- merge without whitespace and delete trailing hyphen otherwise
-    .replaceAll(/-\n(.)/g, "$1")
+    .replaceAll(/([^ ])-\n(.)/g, "$1$2")
     // -------- merge with single whitespace otherwise
     .replaceAll(/\n/g, " ")
     // -------- remove trailing whitespace
