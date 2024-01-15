@@ -259,7 +259,8 @@ function mergedLines(lines: Line[]): boolean {
   matches.push(...getMatches(lines, re_merged_lines6));
 
   // lowercase, hyphen, uppercase
-  const re_merged_lines7 = /(?!(-(und|oder))|( irgendwann-Woche))[^a-zäöüßA-ZÄÖÜ][a-zäöüß]+-[A-ZÄÖÜ]/;
+  const re_merged_lines7 =
+    /(?<![a-zäöüßA-ZÄÖÜ-])(?!(irgendwann-Woche))[a-zäöüß-]+-[A-ZÄÖÜ]/;
   matches.push(...getMatches(lines, re_merged_lines7));
 
   return printMatches(matches, "Merged lines");
