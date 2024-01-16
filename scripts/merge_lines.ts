@@ -31,6 +31,12 @@ function validate(text: string): void {
   const re_trailing_slash = /\/$/;
   const re_leading_slash = /^\//;
 
+  // lines are not empty, except last
+  if (lines.slice(0, -1).some((line) => line == "")) {
+    console.error("Lines are empty");
+    Deno.exit(1);
+  }
+
   // lines have no trailing whitespace
   if (lines.some((line) => line.match(re_trailing_whitespace))) {
     console.error("Lines have trailing whitespace");
