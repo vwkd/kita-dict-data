@@ -125,15 +125,23 @@ function getLines(text: string, nextPage: string): Line[] {
         const previous_line_index = array.findLastIndex((line, i) =>
           i < index && line.value !== ""
         );
-        const previous_line_value = array[previous_line_index];
+        const previous_line = array[previous_line_index];
+
+        // beware: Unicode character "♠︎" has length 2 plus hyphen has length 1!
+        let previous_line_value = previous_line.value.endsWith("♠︎")
+          ? previous_line.value.slice(0, -3)
+          : previous_line.value;
 
         // beware: Unicode character "♦︎" has length 2!
-        const merged_line_value = previous_line_value.value +
+        const merged_line_value = previous_line_value +
           line.value.slice(2);
-
         array[previous_line_index].value = merged_line_value;
 
         return false;
+      } else if (line.value.endsWith("♠︎") && index + 1 == array.length) {
+        // remove "♠︎" if last line of last page
+        // beware: Unicode character "♠︎" has length 2!
+        line.value = line.value.slice(0, -2);
       }
 
       return true;
