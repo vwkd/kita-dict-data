@@ -91,6 +91,22 @@ function mergeLines(text: string): string {
       /([a-zäöüß]-, [A-ZÄÖÜẞ]?[a-zäöüß]+-)\n([a-zäöüß\(\)]+([ ,;\/\n]))/g,
       "$1$2",
     )
+    // line ends in `-` preceeded word and hyphen and `u.` or `od.` or `und` or `oder` or `bzw.` and word
+    // e.g. `Faust- od. Box-\nkampf`, `hinaus- od. (hin)durch-\nschauen`, `hinaus- od. (an et.) vorbei-\nschleppen`
+    // but not `West- u. Ost-geor-\ngien`, `Uniform- od. Solda-\nten-mantel`
+    // beware: wrong if print error, e.g. `West- u. Ostgeor-\ngien`!
+    .replaceAll(
+      /(- \(?(?:und|oder|u\.|od\.|bzw\.) (?:\([A-ZÄÖÜẞa-zäöüß .]+\) )?[A-ZÄÖÜẞa-zäöüß()]+-)\n([A-ZÄÖÜa-zäöüß()]+(?:$|[^A-ZÄÖÜẞa-zäöüß()-]))/gm,
+      "$1$2",
+    )
+    // line ends in `-` and next line starts with word and `u.` or `od.` or `und` or `oder` or `bzw.` and hyphen and word
+    // e.g. `hinunter-\nreichen od. -werfen`, `auf-\nnehmen (od. -heben)`, `Geburts-\nhaus n od. -ort`,
+    // but not `Rela-\ntiv-pronomina u. -adverbien`, `Speiseeis-berei-\ntung od. -verkauf`
+    // beware: wrong if print error, e.g. `Rela-\ntivpronomina u. -adverbien`!
+    .replaceAll(
+      /((?:^|[^A-ZÄÖÜẞa-zäöüß()-])[A-ZÄÖÜa-zäöüß()]+-)\n([A-ZÄÖÜẞa-zäöüß()]+ (?:(?:m|f|n) )?\(?(?:und|oder|u\.|od\.|bzw\.) -)/gm,
+      "$1$2",
+    )
     // line ends in `-)` preceeded by non-space
     .replaceAll(/([^ ]-\))\n(.)/g, "$1$2")
     // line ends in `)` preceeded by `(`, uppercase, and lowercase and next line starts with uppercase, e.g. `(Kegel)\nBahn`, but not `(in Zusammensetzungen) Schüler`
