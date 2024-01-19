@@ -186,10 +186,9 @@ function mergeLines(text: string): string {
     // line ends in abbreviation `pr.` and next line starts with `rel.`
     .replaceAll(/(pr\.)\n(rel\.)/g, "$1$2")
     // -------- merge with whitespace if
-    // line ends in `-` and next line starts with `u.`, e.g. `Ochsen-\nu. Büffelgespann`
-    .replaceAll(/(-)\n(u\.)/g, "$1 $2")
-    // line ends in `-` and next line starts with `od.`
-    .replaceAll(/(-)\n(od\.)/g, "$1 $2")
+    // line ends in `-` and next line starts with `u.` or `od.` or `und` or `oder` or `bzw.`
+    // e.g. `Ochsen-\nu. Büffel-gespann`
+    .replaceAll(/(-)\n((?:und|oder|u\.|od\.|bzw\.)[^a-zäöüßA-ZÄÖÜẞ])/g, "$1 $2")
     // -------- merge without whitespace and delete trailing hyphen otherwise
     .replaceAll(/([^ ])-\n(.)/g, "$1$2")
     // -------- merge with single whitespace otherwise
