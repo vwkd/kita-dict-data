@@ -225,7 +225,7 @@ function missingSuperscriptNumber(lines: Line[]): boolean {
   const re_missing_superscript4 = /RP[^¹²³⁴⁵⁶⁷]/;
   matches.push(...getMatches(lines, re_missing_superscript4));
 
-  const re_missing_superscript5 = /(?<!K)T[^¹²³⁴⁵\.a-zäöü]/;
+  const re_missing_superscript5 = /(?<!K)T(?!ASS)[^¹²³⁴⁵\.a-zäöü]/;
   matches.push(...getMatches(lines, re_missing_superscript5));
 
   const re_missing_superscript6 = /ZP[^¹²³]/;
