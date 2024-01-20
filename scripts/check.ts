@@ -377,6 +377,22 @@ function unbalancedDelimiters(lines: Line[]): boolean {
     }
   }));
 
+  matches.push(...getMatchesCallback(linesMinusOne, (line) => {
+    const re_open_quote = /(?<![Ωδέéàêëა-ჰa-zäöüßA-ZÄÖÜẞ.!?\)\/])"/g;
+    const re_close_quote = /"(?![Ωδέéàêëა-ჰa-zäöüßA-ZÄÖÜẞ\(])/g;
+    const b = isBalanced(line, re_open_quote, re_close_quote);
+
+    if (b !== true) {
+      return {
+        index: line.index,
+        index_column: b.index,
+        match: '"',
+      };
+    } else {
+      return null;
+    }
+  }));
+
   // beware: doesn't include opening slash inside word because can't differentiate from alternative slash
   // allows closing slash inside word for single-word explanations only, e.g. `/herz/liebst`
   const re_opening_slash_not_followed_by_closing =
