@@ -78,8 +78,10 @@ function mergeLines(text: string): string {
     // -------- merge without whitespace if
     // line ends in `~-`
     .replaceAll(/(~-)\n(.)/g, "$1$2")
-    // line ends in `zs.-`
-    .replaceAll(/(zs\.-)\n(.)/g, "$1$2")
+    // line ends in `[zZ]s.-`
+    .replaceAll(/([zZ]s\.-)\n(.)/g, "$1$2")
+    // line ends in `.-`, e.g. `pers.-\naserbeidschan. Volksmusik`
+    .replaceAll(/([^a-zäöüß-][a-zäöüß]+\.-)\n([a-zäöüß]+\.)/g, "$1$2")
     // line ends in `-` and next line starts with uppercase, e.g. `Trauben-\nArt`
     .replaceAll(/(-)\n([A-ZÄÖÜẞ])/g, "$1$2")
     // line ends in `-` and preceeded by not hyphen (currently space), lowercase word, next line starts with lowercase word, comma, whitespace, hyphen, lowercase word, e.g. `auf-\ngehen, -legen`
