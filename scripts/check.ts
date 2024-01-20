@@ -55,10 +55,13 @@ if (import.meta.main) {
   hasErrors = missingSuperscriptNumber(lines) || hasErrors;
   hasErrors = boldFormatting(lines) || hasErrors;
   hasErrors = mergedLines(lines) || hasErrors;
+  hasErrors = continuedLines(lines) || hasErrors;
   hasErrors = whitespace(lines) || hasErrors;
   hasErrors = unbalancedDelimiters(lines) || hasErrors;
 
   hasErrors = incorrectSort(lines) || hasErrors;
+
+  continuedLinesWarn(lines);
 
   if (hasErrors) {
     Deno.exit(1);
@@ -163,7 +166,7 @@ function illegalCharacters(lines: Line[]): boolean {
     /[^\]\[0-9¹²³⁴⁵⁶⁷⁸⁹½⅛⅝⁄₁₂₃₄₅₆₇₈₉ ()|.,:;~?!\/"'*§=†Ωδέéàêëა-ჰa-zäöüßA-ZÄÖÜẞ-]/;
   matches.push(...getMatches(lines, re_illegal_chars));
 
-  return printMatches(matches, "Illegal characters");
+  return printMatches(matches, "Illegal characters", "error");
 }
 
 /**
@@ -179,7 +182,7 @@ function misrecognizedCharacters(lines: Line[]): boolean {
   const re_misrecognized_chars2 = /[a-zäöüßA-ZÄÖÜ]~/;
   matches.push(...getMatches(lines, re_misrecognized_chars2));
 
-  return printMatches(matches, "Misrecognized characters");
+  return printMatches(matches, "Misrecognized characters", "error");
 }
 
 /**
@@ -204,7 +207,7 @@ function mixedCharacters(lines: Line[]): boolean {
     /[ა-ჰ]-(?!Spiel|weise|Massen|Brot|Instruments|Sänger|Partei|Tänzer)[a-zäöüßA-ZÄÖÜ]/;
   matches.push(...getMatches(lines, re_mixed_chars4));
 
-  return printMatches(matches, "Mixed characters");
+  return printMatches(matches, "Mixed characters", "error");
 }
 
 /**
@@ -232,7 +235,7 @@ function missingSuperscriptNumber(lines: Line[]): boolean {
   const re_missing_superscript6 = /ZP[^¹²³]/;
   matches.push(...getMatches(lines, re_missing_superscript6));
 
-  return printMatches(matches, "Missing superscript number");
+  return printMatches(matches, "Missing superscript number", "error");
 }
 
 /**
@@ -251,7 +254,7 @@ function boldFormatting(lines: Line[]): boolean {
   const re_too_few_bold = /(?<!\*)\*(?!\*)/;
   matches.push(...getMatches(lines, re_too_few_bold));
 
-  return printMatches(matches, "Bold formatting");
+  return printMatches(matches, "Bold formatting", "error");
 }
 
 /**
@@ -291,7 +294,35 @@ function mergedLines(lines: Line[]): boolean {
     /(?<![a-zäöüßA-ZÄÖÜ-])(?!(irgendwann-Woche))[a-zäöüß-]+-[A-ZÄÖÜ]/;
   matches.push(...getMatches(lines, re_merged_lines7));
 
-  return printMatches(matches, "Merged lines");
+  return printMatches(matches, "Merged lines", "error");
+}
+
+/**
+ * Check continued lines.
+ * @param lines array of lines
+ */
+function continuedLines(lines: Line[]) {
+  const matches: Match[] = [];
+
+  const first_lines_without_marker = lines.filter((line, index, array) => {
+    if (line.value.endsWith("♠︎")) {
+      // note: can't just use next line since might mistakenly be empty
+      const next_line_index = array.findIndex((line, i) =>
+        i > index && line.value !== ""
+      );
+      const next_line = array[next_line_index];
+
+      if (next_line.value.startsWith("♦︎")) {
+        return true;
+      } else {
+        false;
+      }
+    }
+  });
+  // note: match any line
+  matches.push(...getMatches(first_lines_without_marker, /.*/));
+
+  return printMatches(matches, "Continued lines", "error");
 }
 
 /**
@@ -322,7 +353,7 @@ function whitespace(lines: Line[]): boolean {
   const re_vertical_bar = / \|(?!\|)/;
   matches.push(...getMatches(lines, re_vertical_bar));
 
-  return printMatches(matches, "Whitespace");
+  return printMatches(matches, "Whitespace", "error");
 }
 
 /**
@@ -405,7 +436,7 @@ function unbalancedDelimiters(lines: Line[]): boolean {
     /(?<!♦︎[^/]+)(?<![a-zäöüßA-ZÄÖÜẞა-ჰ ]\/[^\/]+)\/(?!(\*\*)?\(?[~-]?[a-zäöüßA-ZÄÖÜẞა-ჰ\d])(?!\n\n)/;
   matches.push(...getMatches(linesMinusOne, re_closing_slash_not_preceeded_by_opening));
 
-  return printMatches(matches, "Unbalanced delimiters");
+  return printMatches(matches, "Unbalanced delimiters", "error");
 }
 
 /**
@@ -518,6 +549,41 @@ function incorrectSort(lines: Line[]): boolean {
 }
 
 /**
+ * Check continued lines.
+ * @param lines array of lines
+ */
+function continuedLinesWarn(lines: Line[]) {
+  const matches: Match[] = [];
+
+  const re_continued_word = /^♦︎(?! )/;
+  // todo: remove after one run in favor of only checking last page
+  const last_lines_without_marker = lines.filter((line, index, array) => {
+    if (line.value.match(re_continued_word)) {
+      // note: can't just use previous line since might mistakenly be empty
+      const previous_line_index = array.findLastIndex((line, i) =>
+        i < index && line.value !== ""
+      );
+      const previous_line = array[previous_line_index];
+
+      if (previous_line.value.endsWith("-")) {
+        return true;
+      } else {
+        false;
+      }
+    }
+  });
+  // note: match any line
+  matches.push(...getMatches(last_lines_without_marker, /.*/));
+
+  // note: check only last page, assume previous pages were already warned and checked
+  const lastLine = lines.slice(-1);
+  const re_trailing_hyphen_without_marker = /-$/;
+  matches.push(...getMatches(lastLine, re_trailing_hyphen_without_marker));
+
+  return printMatches(matches, "Continued lines", "warn");
+}
+
+/**
  * Get all lines that match regex
  * @param lines array of lines
  * @param regex regex to match for each line, without global flag to get index
@@ -560,14 +626,19 @@ function getMatchesCallback(
  * Print matches for header
  * @param matches array of matches
  * @param log_title info log title
+ * @param severity warning or error
  * @returns true if printed matches, else false
  */
-function printMatches(matches: Match[], log_title: string): boolean {
+function printMatches(
+  matches: Match[],
+  log_title: string,
+  severity: "warn" | "error",
+): boolean {
   if (matches.length > 0) {
-    console.info("Error:", log_title);
+    console.info(severity == "error" ? "Error:" : "Warning:", log_title);
 
     for (const { index, match, index_column } of matches) {
-      console.error(`${index}:${index_column}:${match}`);
+      console[severity](`${index}:${index_column}:${match}`);
     }
 
     return true;
