@@ -373,6 +373,18 @@ function unbalancedDelimiters(lines: Line[]): boolean {
     }
   }));
 
+  // beware: doesn't include opening slash inside word because can't differentiate from alternative slash
+  // allows closing slash inside word for single-word explanations only, e.g. `/herz/liebst`
+  const re_opening_slash_not_followed_by_closing =
+    /(?<![a-zäöüßA-ZÄÖÜẞა-ჰ\d][!.-]?\/?\)?(\*\*)?[¹²³⁴⁵⁶⁷⁸⁹]?)\/(?![^\/ ]+\/[a-zäöüßA-ZÄÖÜẞა-ჰ )?!,;"$])(?!([^\/ ]+ )*[^\/ ]+\/[ )?!,;"$])(?![^\/]+\n\n)/;
+  matches.push(...getMatches(linesMinusOne, re_opening_slash_not_followed_by_closing));
+
+  // beware: doesn't include closing slash inside word because can't differentiate from alternative slash
+  // allows opening slash inside word for single-word and multi-word explanations, e.g. `verdammt/er Kerl/`
+  const re_closing_slash_not_preceeded_by_opening =
+    /(?<!♦︎[^/]+)(?<![a-zäöüßA-ZÄÖÜẞა-ჰ ]\/[^\/]+)\/(?!(\*\*)?\(?[~-]?[a-zäöüßA-ZÄÖÜẞა-ჰ\d])(?!\n\n)/;
+  matches.push(...getMatches(linesMinusOne, re_closing_slash_not_preceeded_by_opening));
+
   return printMatches(matches, "Unbalanced delimiters");
 }
 
