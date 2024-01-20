@@ -53,6 +53,7 @@ if (import.meta.main) {
   hasErrors = misrecognizedCharacters(lines) || hasErrors;
   hasErrors = mixedCharacters(lines) || hasErrors;
   hasErrors = missingSuperscriptNumber(lines) || hasErrors;
+  hasErrors = boldFormatting(lines) || hasErrors;
   hasErrors = mergedLines(lines) || hasErrors;
   hasErrors = whitespace(lines) || hasErrors;
   hasErrors = unbalancedDelimiters(lines) || hasErrors;
@@ -232,6 +233,25 @@ function missingSuperscriptNumber(lines: Line[]): boolean {
   matches.push(...getMatches(lines, re_missing_superscript6));
 
   return printMatches(matches, "Missing superscript number");
+}
+
+/**
+ * Checks bold formatting
+ * @param lines array of lines
+ */
+function boldFormatting(lines: Line[]): boolean {
+  const matches: Match[] = [];
+
+  const re_superscript_inside_bold = /[¹²³⁴⁵⁶⁷⁸⁹]\*/;
+  matches.push(...getMatches(lines, re_superscript_inside_bold));
+
+  const re_too_many_bold = /\*{3,}/;
+  matches.push(...getMatches(lines, re_too_many_bold));
+
+  const re_too_few_bold = /(?<!\*)\*(?!\*)/;
+  matches.push(...getMatches(lines, re_too_few_bold));
+
+  return printMatches(matches, "Bold formatting");
 }
 
 /**
