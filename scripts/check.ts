@@ -346,7 +346,11 @@ function unbalancedDelimiters(lines: Line[]): boolean {
       .replaceAll(re_enumeration_markers_alphabetic, "")
       .replaceAll(re_enumeration_markers_numeric, "");
 
-    const b = isBalanced(valueClean, "(", ")");
+    const b = isBalanced(
+      { value: valueClean, index: line.index },
+      /\(/g,
+      /\)/g,
+    );
 
     if (b !== true) {
       return {
@@ -360,7 +364,7 @@ function unbalancedDelimiters(lines: Line[]): boolean {
   }));
 
   matches.push(...getMatchesCallback(linesMinusOne, (line) => {
-    const b = isBalanced(line.value, "[", "]");
+    const b = isBalanced(line, /\[/g, /\]/g);
 
     if (b !== true) {
       return {
@@ -589,27 +593,76 @@ function validateSorted(headwords: Line[], log_title: string): boolean {
 
 /**
  * Checks if delimiters are balanced
- * @param str string to check
- * @param delimiterOpen open delimiter, e.g. `(`, `[`, etc.
- * @param delimiterClose close delimiter, e.g. `)`, `]`, etc.
+ *
+ * - note: delimiter regexes must match non-overlapping substrings
+ * @param line line to check
+ * @param delimiterOpen open delimiter regex, must be global, e.g. `\(`, `\[`, etc.
+ * @param delimiterClose close delimiter regex, must be global, e.g. `\)`, `\]`, etc.
  * @returns true if all delimiters are balanced, false otherwise
  */
 function isBalanced(
-  str: string,
-  delimiterOpen: string,
-  delimiterClose: string,
+  line: Line,
+  delimiterOpen: RegExp,
+  delimiterClose: RegExp,
 ): true | { index: number; delimiter: "open" | "close" } {
   let openDelimiterIndices: number[] = [];
 
-  for (let i = 0; i < str.length; i += 1) {
-    if (str[i] === delimiterOpen) {
-      openDelimiterIndices.push(i);
-    } else if (str[i] === delimiterClose) {
+  const matchesOpen = line.value.matchAll(delimiterOpen);
+  const matchesClose = line.value.matchAll(delimiterClose);
+
+  let matchOpen = matchesOpen.next();
+  let matchClose = matchesClose.next();
+
+  // todo: remove type assertions on `index` once https://github.com/microsoft/TypeScript/issues/36788 is fixed by https://github.com/microsoft/TypeScript/pull/55565 possibly in TypeScript 5.4 in March 2024 https://github.com/microsoft/TypeScript/issues/56948
+  if (!matchOpen.done && matchClose.done) {
+    const indexOpen = matchOpen.value.index!;
+    return { index: indexOpen + 1, delimiter: "open" };
+  } else if (!matchClose.done && matchOpen.done) {
+    const indexClose = matchClose.value.index!;
+    return { index: indexClose + 1, delimiter: "close" };
+  }
+
+  while (!matchOpen.done && !matchClose.done) {
+    const indexOpen = matchOpen.value.index!;
+    const lengthOpen = matchOpen.value[0].length;
+    const indexClose = matchClose.value.index!;
+    const lengthClose = matchClose.value[0].length;
+
+    if (indexOpen + lengthOpen < indexClose) {
+      openDelimiterIndices.push(indexOpen);
+      matchOpen = matchesOpen.next();
+    } else if (indexClose + lengthClose < indexOpen) {
       // closing delimiter without matching opening delimiter
       if (openDelimiterIndices.length == 0) {
-        return { index: i - 1, delimiter: "close" };
+        return { index: indexClose + 1, delimiter: "close" };
       }
+
       openDelimiterIndices.pop();
+      matchClose = matchesClose.next();
+    } else {
+      const indexOpenEnd = indexOpen + lengthOpen;
+      const indexCloseEnd = indexClose + lengthClose;
+      throw new Error(
+        `Overlapping open delimiter ${line.index}:${indexOpen}-${indexOpenEnd} and close delimiter ${line.index}:${indexClose}-${indexCloseEnd}`,
+      );
+    }
+  }
+
+  if (!matchOpen.done) {
+    // note: don't loop to find all excess open delimiters since will return only first anyways
+    const indexOpen = matchOpen.value.index!;
+    openDelimiterIndices.push(indexOpen);
+  } else if (!matchClose.done) {
+    while (!matchClose.done) {
+      const indexClose = matchClose.value.index!;
+
+      // closing delimiter without matching opening delimiter
+      if (openDelimiterIndices.length == 0) {
+        return { index: indexClose + 1, delimiter: "close" };
+      }
+
+      openDelimiterIndices.pop();
+      matchClose = matchesClose.next();
     }
   }
 
