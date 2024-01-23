@@ -84,8 +84,11 @@ function mergeLines(text: string): string {
     .replaceAll(/([^a-zäöüß-][a-zäöüß]+\.-)\n([a-zäöüß]+\.)/g, "$1$2")
     // line ends in `-` and next line starts with uppercase, e.g. `Trauben-\nArt`
     .replaceAll(/(-)\n([A-ZÄÖÜẞ])/g, "$1$2")
-    // line ends in `-` and preceeded by not hyphen (currently space), lowercase word, next line starts with lowercase word, comma, whitespace, hyphen, lowercase word, e.g. `auf-\ngehen, -legen`
-    .replaceAll(/([ ][a-zäöüß]+-)\n([a-zäöüß]+, -[a-zäöüß])/g, "$1$2")
+    // line ends in `-` and preceeded by not hyphen (currently space), lowercase word, next line starts with lowercase word, comma, whitespace, hyphen, lowercase word, e.g. `auf-\ngehen, -legen`, `Tee-\nkessel m, -kanne`, `Garten-\npflanzen f/pl, -produkte`
+    .replaceAll(
+      /(?<![A-ZÄÖÜa-zäöüß-])([A-ZÄÖÜa-zäöüß()]+-)\n([a-zäöüß]+(?: (?:(?:(?:m|f|n)(?:\/pl)?)|pl))?, -[a-zäöüß])/g,
+      "$1$2",
+    )
     // line ends in `-` and next line start with `ea.`, e.g. `hinter-\nea.`
     .replaceAll(/(-)\n(ea\.)/g, "$1$2")
     // line ends in `-` and preceeded by hyphen, comma, space and characters, and followed by characters, not hyphen (currently space / comma / semicolon / slash / line-end), e.g. `Waschbär-, Schuppen-\npelz`, `an-, hin-\nzulehnen(d)`, but not `Zusammen-, Gemein-\nschafts-leben`
@@ -106,7 +109,7 @@ function mergeLines(text: string): string {
     // but not `Rela-\ntiv-pronomina u. -adverbien`, `Speiseeis-berei-\ntung od. -verkauf`
     // beware: wrong if print error, e.g. `Rela-\ntivpronomina u. -adverbien`!
     .replaceAll(
-      /((?:^|[^A-ZÄÖÜẞa-zäöüß()-])[A-ZÄÖÜa-zäöüß()]+-)\n([A-ZÄÖÜẞa-zäöüß()]+ (?:(?:m|f|n) )?\(?(?:und|oder|u\.|od\.|bzw\.) -)/gm,
+      /((?:^|[^A-ZÄÖÜẞa-zäöüß()-])[A-ZÄÖÜa-zäöüß()]+-)\n([A-ZÄÖÜẞa-zäöüß()]+ (?:(?:(?:(?:m|f|n)(?:\/pl)?)|pl) )?\(?(?:und|oder|u\.|od\.|bzw\.) -)/gm,
       "$1$2",
     )
     // line ends in `-)` preceeded by non-space
