@@ -336,6 +336,10 @@ function whitespace(lines: Line[]): boolean {
   const re_vertical_bar = / \|(?!\|)/;
   matches.push(...getMatches(lines, re_vertical_bar));
 
+  // missing space after paragraph
+  const re_paragraph = /§(?![ §])/;
+  matches.push(...getMatches(lines, re_paragraph));
+
   return printMatches(matches, "Whitespace");
 }
 
