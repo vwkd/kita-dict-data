@@ -261,6 +261,10 @@ function boldFormatting(lines: Line[]): boolean {
 function mergedLines(lines: Line[]): boolean {
   const matches: Match[] = [];
 
+  // note: exclude last line of last page since may report false positive if continued on next page
+  // if indeed error then finds on next check of next page
+  const linesMinusOne = lines.slice(0, -1);
+
   // missing space after comma except if digit or newline
   const re_merged_lines = /,(?! |\d|$)/;
   matches.push(...getMatches(lines, re_merged_lines));
@@ -290,6 +294,16 @@ function mergedLines(lines: Line[]): boolean {
   const re_merged_lines7 =
     /(?<![a-zäöüßA-ZÄÖÜ-])(?!(irgendwann-Woche))[a-zäöüß-]+-[A-ZÄÖÜ]/;
   matches.push(...getMatches(lines, re_merged_lines7));
+
+  // punctuation at end of line, except last
+  const re_merged_lines8 = /[[,;(/]$/;
+  matches.push(...getMatches(linesMinusOne, re_merged_lines8));
+
+  // verb lines that don't start with verb stuff
+  // `[^ ]+` to make nicer print with non-whitespace
+  const re_merged_lines9 =
+    /^  (?!(IV[¹²³⁴])|(P[¹²³])|(RM[¹²³⁴])|(RP[¹²³⁴⁵⁶⁷])|(T[¹²³⁴⁵])|(ZP[¹²³])|(MV )|(KT )|(fut )|(aor )|(impf )|((\d\. )?Inf\. )|(a\) )|(b\) )|(Merke: )|(\(Dieses Verb ))[^ ]+/;
+  matches.push(...getMatches(lines, re_merged_lines9));
 
   return printMatches(matches, "Merged lines");
 }
@@ -397,13 +411,17 @@ function unbalancedDelimiters(lines: Line[]): boolean {
   // allows closing slash inside word for single-word explanations only, e.g. `/herz/liebst`
   const re_opening_slash_not_followed_by_closing =
     /(?<![a-zäöüßA-ZÄÖÜẞა-ჰ\d][!.-]?\/?\)?(\*\*)?[¹²³⁴⁵⁶⁷⁸⁹]?)\/(?![^\/ ]+\/[a-zäöüßA-ZÄÖÜẞა-ჰ )?!,;"$])(?!([^\/ ]+ )*[^\/ ]+\/[ )?!,;"$])(?![^\/]+\n\n)/;
-  matches.push(...getMatches(linesMinusOne, re_opening_slash_not_followed_by_closing));
+  matches.push(
+    ...getMatches(linesMinusOne, re_opening_slash_not_followed_by_closing),
+  );
 
   // beware: doesn't include closing slash inside word because can't differentiate from alternative slash
   // allows opening slash inside word for single-word and multi-word explanations, e.g. `verdammt/er Kerl/`
   const re_closing_slash_not_preceeded_by_opening =
     /(?<!♦︎[^/]+)(?<![a-zäöüßA-ZÄÖÜẞა-ჰ ]\/[^\/]+)\/(?!(\*\*)?\(?[~-]?[a-zäöüßA-ZÄÖÜẞა-ჰ\d])(?!\n\n)/;
-  matches.push(...getMatches(linesMinusOne, re_closing_slash_not_preceeded_by_opening));
+  matches.push(
+    ...getMatches(linesMinusOne, re_closing_slash_not_preceeded_by_opening),
+  );
 
   return printMatches(matches, "Unbalanced delimiters");
 }
