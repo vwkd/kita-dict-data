@@ -340,6 +340,11 @@ function whitespace(lines: Line[]): boolean {
   const re_paragraph = /§(?![ §])/;
   matches.push(...getMatches(lines, re_paragraph));
 
+  // missing space before tilde
+  const re_tilde =
+    /(?<![^ა-ჰ](მი|მო|მიმო|წა|წამო|წარ|წარმო|შე|შემო|გა|გამო|ა|ამო|აღ|აღმო|ჩა|ჩამო|და|გადა|გადმო|გან|გარდა|გარემო|გარშემო|გარდმო|შთა|უკუ|წინააღ|იავარ|იძულებულ|ნათელ|უარ|უგულებელ|ევნებელ|უზრუნველ|უკვდავ|უჩინარ|ღაღად|შეურაცხ|ცხად))(?<=[ა-ჰ])~(?!~)/;
+  matches.push(...getMatches(lines, re_tilde));
+
   return printMatches(matches, "Whitespace");
 }
 
