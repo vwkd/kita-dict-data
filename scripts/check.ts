@@ -138,6 +138,11 @@ function getLines(text: string, nextPage: string): Line[] {
           line.value.slice(2);
         array[previous_line_index].value = merged_line_value;
 
+        // note: empty this line in case following page has single continued line
+        // otherwise would mistakenly concatenate onto this line and lose it
+        // since this line is filtered out
+        line.value = "";
+
         return false;
       } else if (line.value.endsWith("♠︎") && index + 1 == array.length) {
         // remove "♠︎" if last line of last page
