@@ -279,7 +279,7 @@ function mergedLines(lines: Line[]): boolean {
 
   // hyphen followed by space except if first word in line
   const re_merged_lines4 =
-    /(?<= )\S+- (?!(u\. )|(od\. )|(und )|(oder )|(bzw\. )|(bis )|(usw\.\)))/;
+    /(?<= )\S+- (?!(u\. )|(od\. )|(und )|(oder )|(bzw\. )|(bis )|(usw\.[ )]))/;
   matches.push(...getMatches(lines, re_merged_lines4));
 
   // hyphen followed by slash
@@ -302,7 +302,7 @@ function mergedLines(lines: Line[]): boolean {
   // verb lines that don't start with verb stuff
   // `[^ ]+` to make nicer print with non-whitespace
   const re_merged_lines9 =
-    /^  (?!(IV[¹²³⁴])|(P[¹²³])|(RM[¹²³⁴])|(RP[¹²³⁴⁵⁶⁷])|(T[¹²³⁴⁵])|(ZP[¹²³])|(MV )|(KT )|(fut )|(aor )|(impf )|((\d\. )?Inf\. )|(a\) )|(b\) )|(Merke: )|(\(Dieses Verb ))[^ ]+/;
+    /^  (?!(IV[¹²³⁴])|(P[¹²³])|(RM[¹²³⁴])|(RP[¹²³⁴⁵⁶⁷])|(T[¹²³⁴⁵])|(ZP[¹²³])|(MV )|(KT )|(fut )|(aor )|(impf )|((\d\. )?Inf\. )|(a\) )|(b\) )|(Merke( [A-ZÄÖÜ]?[a-zäöüß]+\.?)*: )|(\(Dieses Verb )|(\(s\. \d+\. L\.)|(Übersicht über)|(\(Wurzeln: )|(---$))[^ ]+/;
   matches.push(...getMatches(lines, re_merged_lines9));
 
   return printMatches(matches, "Merged lines");
@@ -362,7 +362,7 @@ function unbalancedDelimiters(lines: Line[]): boolean {
   const re_enumeration_markers_alphabetic =
     /(?<!(Pkt\.)|(§( \d+,)+)|(ca\. \d+)) [abcde]\)/g;
   const re_enumeration_markers_numeric =
-    /(?<!(Pkt\.(( \d+,)? \d+ (u\.|und))?)|(§( \d+,)*)|(§ \d+ u\.)|(§ \d+, \d+ u\.)) \d+\)/g;
+    /(?<!(Pkt\.(( \d+,)? \d+ (u\.|und))?)|(§( \d+,)*)|(§ \d+ u\.)|(§ \d+, \d+ u\.)|(s\. S\.)) \d+\)/g;
 
   matches.push(...getMatchesCallback(linesMinusOne, (line) => {
     let valueClean = line.value
