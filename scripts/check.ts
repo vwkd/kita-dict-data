@@ -274,7 +274,8 @@ function mergedLines(lines: Line[]): boolean {
   matches.push(...getMatches(lines, re_merged_lines2));
 
   // `Inf.` in middle of line
-  const re_merged_lines3 = /(?<!^ |  \d\.) Inf\./;
+  const re_merged_lines3 =
+    /(?<!(^ )|(^  \d\.)|(s\. ((unten|oben) )?\d\.)) Inf\./;
   matches.push(...getMatches(lines, re_merged_lines3));
 
   // hyphen followed by space except if first word in line
