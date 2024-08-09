@@ -57,54 +57,57 @@ def get_document_bounds(document, feature):
     return bounds
 
 
-def render_doc_text(book, page):
-    image_file = f"p{book}/p-{page:03}.jpg"
-    data_file = f"out{book}/output-{page}-to-{page}.json"
-    image_file_out = f"box{book}/p-{page}.jpg"
+def render_doc_text(image, result):
+    document = result["responses"][0]["fullTextAnnotation"]
 
-    print(f"Create boxed {book}/{page} ...")
+    bounds = get_document_bounds(document, FeatureType.WORD)
+    draw_boxes(image, bounds, "yellow", 1)
 
-    image = Image.open(image_file)
+    bounds = get_document_bounds(document, FeatureType.PARA)
+    draw_boxes(image, bounds, "blue", 2)
 
-    with open(data_file) as user_file:
+    bounds = get_document_bounds(document, FeatureType.BLOCK)
+    draw_boxes(image, bounds, "red", 3)
+
+
+def box_image(image_path, data_path, output_path):
+    with Image.open(image_path) as img, open(data_path) as user_file:
         content = user_file.read()
 
-    result = json.loads(content)
-    try:
-        document = result["responses"][0]["fullTextAnnotation"]
+        result = json.loads(content)
 
-        bounds = get_document_bounds(document, FeatureType.WORD)
-        draw_boxes(image, bounds, "yellow", 1)
+        try:
+            render_doc_text(img, result)
+        except Exception as e:
+            print(f"Got error {e}")
 
-        bounds = get_document_bounds(document, FeatureType.PARA)
-        draw_boxes(image, bounds, "blue", 2)
-
-        bounds = get_document_bounds(document, FeatureType.BLOCK)
-        draw_boxes(image, bounds, "red", 3)
-    except:
-        print(f"Skipped empty page {book}/{page}")
-
-    image.save(image_file_out)
+        img.save(output_path)
 
 
 if __name__ == "__main__":
-    book1 = 1
-    last_page1 = 862
+    print("Create box images...")
 
-    os.makedirs("box1", exist_ok=True)
-    for page in range(1, last_page1 + 1):
-        render_doc_text(book1, page)
+    # for every part
+    for part_number in range(1, 4):
+        print(f"Part {part_number}")
 
-    book2 = 2
-    last_page1 = 818
+        dirname = f"tmp/part{part_number}"
 
-    os.makedirs("box2", exist_ok=True)
-    for page in range(1, last_page1 + 1):
-        render_doc_text(book2, page)
+        # for every page
+        for name in os.listdir(dirname):
+            if re.match(r"^page-\d+\.jpg$", name):
+                print(f"{name}")
 
-    book3 = 3
-    last_page1 = 832
+                path = os.path.join(dirname, name)
+                name_new = re.sub(r"^(page-\d+)(\.jpg)$", r"\1_boxed\2", name)
+                path_new = os.path.join(dirname, name_new)
 
-    os.makedirs("box3", exist_ok=True)
-    for page in range(1, last_page1 + 1):
-        render_doc_text(book3, page)
+                page_number = name.split("-")[1].split(".")[0]
+                data_path = (
+                    f"out{part_number}/output-{page_number}-to-{page_number}.json"
+                )
+
+                # create boxed page image
+                box_image(path, data_path, path_new)
+            else:
+                print(f"WARNING: Skipping unexpected file {name}")
