@@ -17,6 +17,17 @@ for part_number in 1 2 3; do
 
   dirname="tmp/part${part_number}"
 
-  # create trimmed page image
-  parallel --bar -j+0 trim2detail -p "$PADDING" {} {.}_cropped.jpg ::: "${dirname}"/page-*.jpg
+  # for every page
+  for filepath in "${dirname}"/page-*[0-9].jpg; do
+    dir=$(dirname "$filepath")
+    filename=$(basename "$filepath")
+
+    echo "$filename"
+
+    filename_new=$(echo "$filename" | sed -E 's/^(page-[0-9]+)(\.jpg)$/\1_cropped\2/')
+    filepath_new="${dir}/${filename_new}"
+
+    # create trimmed page image
+    trim2detail -p "$PADDING" "$filepath" "$filepath_new"
+  done
 done
