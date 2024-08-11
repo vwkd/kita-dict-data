@@ -2,6 +2,10 @@
 
 set -e -u -o pipefail
 
+# REQUIREMENTS:
+# - [trim2detail](http://www.fmwconcepts.com/imagemagick/trim2detail/index.php)
+# curl 'http://www.fmwconcepts.com/imagemagick/downloadcounter.php?scriptname=trim2detail&dirname=trim2detail' -o ~/.local/bin/trim2detail && chmod +x ~/.local/bin/trim2detail
+
 # pixels of padding on each side
 PADDING=30
 
@@ -24,9 +28,6 @@ for part_number in 1 2 3; do
     filepath_new="${dir}/${filename_new}"
 
     # create trimmed page image
-    trimbox=$(magick "$filepath" -fuzz 5% -format "%@" info:)
-    IFS="x+" read width height x_offset y_offset <<< "$trimbox"
-    padded_trimbox="$((width + 2 * PADDING))x$((height + 2 * PADDING))+$((x_offset - PADDING))+$((y_offset - PADDING))"
-    magick "$filepath" -crop "$padded_trimbox" +repage "$filepath_new"
+    trim2detail -p "$PADDING" "$filepath" "$filepath_new"
   done
 done
